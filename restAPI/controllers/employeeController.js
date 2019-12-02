@@ -132,6 +132,30 @@ exports.employee_transfer_details = async (req, res) => {
     });
 };
 
+exports.get_employee_status = async (req, res) => {
+    console.log(req.params.id);
+    try {
+        const querySting = `SELECT * from employee_login where employee_id = ? ;`;
+        connection.query(querySting, [req.params.id],(err, rows, fields) => {
+            console.log(" inside training_list");
+            if (err) {
+                console.log(err);
+                res.sendStatus(500);
+                return
+            }
+            let is_active = 0;
+            if (rows[0]) {
+                is_active = rows[0].employee_is_active
+            }
+            console.log(is_active);
+            res.json({status: 200, is_active: is_active})
+        });
+    }catch (e) {
+        res.sendStatus(e.message);
+    }
+
+};
+
 exports.create = async (req, res) => {
     console.log(req.body);
     console.log(req.file.path);
@@ -158,6 +182,82 @@ exports.create = async (req, res) => {
 
 
 };
+exports.set_employee_status = async (req, res) => {
+    console.log(req.body.status, req.body.id);
+    let status = req.body.status === 'true' ? 1 : 0;
+    let querySting = "SELECT * from employee_login where employee_id = ?;";
+
+    connection.query(querySting, [req.body.id], (err, rows, fields) => {
+        console.log("i think we did createEmployee");
+        if (err) {
+            console.log("500");
+            res.json({status: 500, err: err.sqlMessage});
+            return
+        }
+        if (rows.length === 0) {
+            querySting = "insert into employee_login(employee_id, employee_is_active, employee_password) values (?,?,?);";
+            connection.query(querySting, [req.body.id, status, "admin"], (err, rows, fields) => {
+                console.log("inside insert");
+                if (err) {
+                    console.log("500", err.sqlMessage);
+                    res.json({status: 500, err: err.sqlMessage});
+                    return
+                }
+                console.log(200, rows);
+
+                res.json({status: 200, rows})
+            });
+        } else {
+            querySting = "update  employee_login set employee_is_active = ? where employee_id = ?;";
+            connection.query(querySting, [status, req.body.id], (err, rows, fields) => {
+                console.log("inside update");
+                if (err) {
+                    console.log("500", err.sqlMessage);
+                    res.json({status: 500, err: err.sqlMessage});
+                    return
+                }
+                console.log(200, rows);
+
+                res.json({status: 200, rows})
+            });
+        }
+    });
+
+
+};
+exports.set_employee_password = async (req, res) => {
+
+    console.log(req.body.password, req.body.id);
+    let querySting = "SELECT * from employee_login where employee_id = ?;";
+
+    connection.query(querySting, [req.body.id], (err, rows, fields) => {
+        console.log("inside set_employee_password");
+        if (err) {
+            console.log("pk 500");
+            res.json({status: 500});
+            return
+        }
+        if (rows.length === 0) {
+            console.log("ok  500");
+            res.json({status: 500});
+            return
+        } else {
+            querySting = "update  employee_login set employee_password = ? where employee_id = ?;";
+            connection.query(querySting, [req.body.password, req.body.id], (err, rows, fields) => {
+                console.log("inside update");
+                if (err) {
+                    console.log("500", err.sqlMessage);
+                    res.json({status: 500, err: err.sqlMessage});
+                    return
+                }
+                console.log(200, rows);
+
+                res.json({status: 200, rows})
+            });
+        }
+    });
+
+}
 exports.employee_create_address = async (req, res) => {
     const addressvalues = [
         req.body.current_address,

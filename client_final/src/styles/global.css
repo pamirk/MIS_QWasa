@@ -209,8 +209,9 @@ body {
 .header {
   background: #57496e;
   padding: 20px 0;
-  margin-bottom: 30px;
+  /*margin-bottom: 30px;*/
 }
+
 /* line 17, ../sass/global.sass */
 .header--logo {
   color: #fff;

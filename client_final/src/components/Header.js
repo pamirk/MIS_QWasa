@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-
+import config from "../config";
+import {Avatar} from "antd";
 export default class Header extends React.PureComponent {
     render() {
         const {context} = this.props;
@@ -12,7 +13,8 @@ export default class Header extends React.PureComponent {
                     <nav>
                         {authUser ? (
                             <React.Fragment>
-                                <span>Welcome, {authUser.name}!</span>
+                                <Avatar size={45} src={`http://localhost:3003/${authUser.employee_photo}`}/>
+                                <span>Welcome, {authUser.full_name}!</span>
                                 <Link to="/signout">Sign Out</Link>
                             </React.Fragment>
                         ) : (

@@ -205,7 +205,7 @@ export default class MyMenu extends React.Component {
             case 'security':
                 return <SecurityView/>;
             case 'binding':
-                return <BindingView/>;
+                return <BindingView id={this.id}/>;
             case 'notification':
                 return <NotificationView/>;
             default:

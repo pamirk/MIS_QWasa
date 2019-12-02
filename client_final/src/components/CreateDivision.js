@@ -48,7 +48,7 @@ export default class CreateDivision extends Component {
 
     render() {
         return (
-            <>
+            <div style={{height: '100 vh'}}>
                 <Container>
 
                     <Form>
@@ -117,7 +117,7 @@ export default class CreateDivision extends Component {
 
                     </Form>
                 </Container>
-            </>
+            </div>
         );
     }
 

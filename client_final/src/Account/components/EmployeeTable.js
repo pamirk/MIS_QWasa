@@ -154,11 +154,6 @@ export default class EmployeeTable extends Component {
                           Report
                       </Link>
 
-                      <Divider type="vertical"/>
-                      <Link onClick={() => {this.props.history.push(`permissions/${record.key}`)}}>
-                          Permissions
-                      </Link>
-
                     </span>
                 )
             }

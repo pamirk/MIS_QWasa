@@ -40,8 +40,12 @@ router.get("/designation_list", employeeController.designation_list);
 router.get("/division_list", employeeController.division_list);
 router.get("/employee_designation_details/:id", employeeController.employee_designation_details);
 router.get("/employee_transfer_details/:id", employeeController.employee_transfer_details);
+router.get("/get_employee_status/:id", employeeController.get_employee_status);
 
 router.post("/employee_create", upload.single('image'), employeeController.create);
+router.post("/set_employee_status", upload.single('image'), employeeController.set_employee_status);
+router.post("/set_employee_password", upload.single('image'), employeeController.set_employee_password);
+
 router.post("/create_employee_designation", upload.single('image'), employeeController.create_employee_designation);
 router.post("/employee_create_address", employeeController.employee_create_address);
 router.post("/create_division", employeeController.create_division);

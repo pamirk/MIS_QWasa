@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Form from './Form';
+import { Radio } from 'antd';
 
 export default class UserSignIn extends Component {
   state = {
     username: '',
     password: '',
+    role: 'admin',
     errors: [],
-  }
+  };
 
   render() {
     const {
@@ -17,30 +19,37 @@ export default class UserSignIn extends Component {
     } = this.state;
 
     return (
-      <div className="bounds">
+      <div>
         <div className="grid-33 centered signin">
           <h1>Sign In</h1>
-          <Form 
+          <Form
             cancel={this.cancel}
             errors={errors}
             submit={this.submit}
             submitButtonText="Sign In"
             elements={() => (
               <React.Fragment>
-                <input 
-                  id="username" 
-                  name="username" 
-                  type="text"
-                  value={username} 
-                  onChange={this.change} 
-                  placeholder="User Name" />
-                <input 
-                  id="password" 
+                <div>
+                  <Radio.Group name='role' onChange={this.change} defaultValue="admin">
+                    <Radio.Button value="admin" >Admin</Radio.Button>
+                    <Radio.Button value="employee">Employee</Radio.Button>
+                    <Radio.Button value="consumer">Consumer</Radio.Button>
+                  </Radio.Group>
+                </div>
+                <input
+                  id="username"
+                  name="username"
+                  type="email"
+                  value={username}
+                  onChange={this.change}
+                  placeholder="Email" />
+                <input
+                  id="password"
                   name="password"
                   type="password"
-                  value={password} 
-                  onChange={this.change} 
-                  placeholder="Password" />                
+                  value={password}
+                  onChange={this.change}
+                  placeholder="Password" />
               </React.Fragment>
             )} />
           <p>
@@ -65,9 +74,9 @@ export default class UserSignIn extends Component {
   submit = () => {
     const { context } = this.props;
     const { from } = this.props.location.state || { from: { pathname: '/authenticated' } };
-    const { username, password } = this.state;
+    const { username, password , role} = this.state;
 
-    context.actions.signIn(username, password)
+    context.actions.signIn(username, password, role)
       .then((user) => {
         if (user === null) {
           this.setState(() => {

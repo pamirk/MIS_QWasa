@@ -26,49 +26,82 @@ const authenticateUser = (req, res, next) => {
     let message = null;
 
     // Get the user's credentials from the Authorization header.
-    const credentials = auth(req);
+    const credentials = {
+        username: req.body.username,
+        password: req.body.password,
+        role: req.body.role
+    };
+    console.log("credentials:  ", credentials);
 
-    if (credentials) {
-        // Look for a user whose `username` matches the credentials `name` property.
-        const user = users.find(u => u.username === credentials.name);
 
-        if (user) {
-            const authenticated = bcryptjs
-                .compareSync(credentials.pass, user.password);
-            if (authenticated) {
-                console.log(`Authentication successful for username: ${user.username}`);
-
-                // Store the user on the Request object.
-                req.currentUser = user;
-            } else {
-                message = `Authentication failure for username: ${user.username}`;
-            }
-        } else {
-            message = `User not found for username: ${credentials.name}`;
+    const email = credentials.username.trim();
+    const querySting = `SELECT *
+                        from employees
+                        where email = ?;`;
+    connection.query(querySting, [email], (err, rows, fields) => {
+        if (err) {
+            console.log("database error findEmployee:  ");
+            message = "message with email not found";
         }
-    } else {
-        message = 'Auth header not found';
-    }
+        const employee = rows[0];
+        console.log("success findEmployee:  ", employee.employee_id);
 
-    if (message) {
-        console.warn(message);
-        res.status(401).json({message: 'Access Denied'});
-    } else {
-        next();
-    }
+        const querySting = `SELECT *
+                            from employee_login
+                            where employee_id = ?;`;
+
+        connection.query(querySting, [employee.employee_id], (err, rows, fields) => {
+            if (err) {
+                console.log("database error findUser:  ");
+            }
+            console.log("2 success findUser:  ", rows);
+            const employee_login = rows[0];
+
+
+            console.log("employee_login credentials:  ", employee_login);
+
+            if (employee_login !== null) {
+                // Look for a user whose `username` matches the credentials `name` property.
+                console.log("body:  ", req.body.role);
+
+                if (employee_login) {
+                    const authenticated = (employee_login.employee_password === req.body.password);
+                    if (authenticated) {
+                        console.log(`Authentication successful for username: ${employee_login.employee_id}`);
+
+                        // Store the user on the Request object.
+                        req.currentUser = {...employee_login, ...employee};
+                    } else {
+                        message = `Authentication failure for username`;
+                    }
+                } else {
+                    message = `User not found for username`;
+                }
+            } else {
+                message = 'Auth header not found';
+            }
+
+
+            if (message) {
+                console.warn(message);
+                res.status(401).json({message: 'Access Denied'});
+            } else {
+                next();
+            }
+        });
+    });
+
+
 };
 
 // Construct a router instance.
 const router = express.Router();
 
 // Route that returns the current authenticated user.
-router.get('/users', authenticateUser, (req, res) => {
+router.post('/getusers', authenticateUser, (req, res) => {
     const user = req.currentUser;
-
-    res.json({
-        name: user.name,
-        username: user.username,
-    });
+    console.debug(user)
+    res.json(user);
 });
 
 // Route that creates a new user.
@@ -81,7 +114,7 @@ router.post('/users', [
         .withMessage('Please provide a value for "username"'),
     check('password')
         .exists({checkNull: true, checkFalsy: true})
-        .withMessage('Please provide a value for "password"'),] , (req, res) => {
+        .withMessage('Please provide a value for "password"'),], (req, res) => {
 
     // Attempt to get the validation result from the Request object.
     const errors = validationResult(req);

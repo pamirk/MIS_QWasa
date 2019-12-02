@@ -8,6 +8,7 @@ export default class Data {
             method,
             headers: {
                 'Content-Type': 'application/json; charset=utf-8',
+                'type': 'formData'
             },
         };
 
@@ -18,12 +19,16 @@ export default class Data {
         if (requiresAuth) {
             const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
             options.headers['Authorization'] = `Basic ${encodedCredentials}`;
+            // options.body = JSON.stringify({role: credentials.role});
+
         }
         return fetch(url, options);
     }
 
-    async getUser(username, password) {
-        const response = await this.api(`/users`, 'GET', null, true, {username, password});
+    async getUser(username, password, role) {
+        console.log("pk: ",username, password, role)
+
+        const response = await this.api(`/getusers`, 'POST', {username, password, role}, true, {username, password, role});
         if (response.status === 200) {
             return response.json().then(data => data);
         } else if (response.status === 401) {

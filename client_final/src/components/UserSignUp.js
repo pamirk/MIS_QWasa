@@ -19,7 +19,7 @@ export default class UserSignUp extends Component {
     } = this.state;
 
     return (
-      <div className="bounds">
+      <div>
         <div className="grid-33 centered signin">
           <h1>Sign Up</h1>
           <Form
