@@ -1,4 +1,5 @@
 import config from './config';
+import axios from "axios";
 
 export default class Data {
     api(path, method = 'GET', body = null, requiresAuth = false, credentials = null) {
@@ -26,9 +27,27 @@ export default class Data {
     }
 
     async getUser(username, password, role) {
-        console.log("pk: ",username, password, role)
+        console.log("pk: ", username, password, role)
 
-        const response = await this.api(`/getusers`, 'POST', {username, password, role}, true, {username, password, role});
+        const response = await this.api(`/getusers`, 'POST', {username, password, role}, true, {
+            username,
+            password,
+            role
+        });
+        if (response.status === 200) {
+            return response.json().then(data => data);
+        } else if (response.status === 401) {
+            return null;
+        } else {
+            throw new Error();
+        }
+    }
+    async getConsumer(cnic, password) {
+        console.log("pk: ", cnic, password)
+
+        const response = await this.api(`/getConsumer`, 'POST', {cnic, password}, false);
+        console.log("response: ", response)
+
         if (response.status === 200) {
             return response.json().then(data => data);
         } else if (response.status === 401) {
@@ -39,15 +58,33 @@ export default class Data {
     }
 
     async createUser(user) {
-        const response = await this.api('/users', 'POST', user);
-        if (response.status === 201) {
-            return [];
-        } else if (response.status === 400) {
-            return response.json().then(data => {
-                return data.errors;
+        console.log(user);
+
+        const fd = new FormData();
+        fd.append('account_number', user.account_number);
+        fd.append('user_cnic', user.user_cnic);
+        fd.append('user_name', user.user_name);
+        fd.append('user_email', user.user_email);
+        fd.append('user_password', user.user_password);
+        fd.append('user_address', user.user_address);
+        fd.append('user_contact', user.user_contact);
+        fd.append('user_cnic_front_image', user.user_cnic_front_image, user.user_cnic_front_image);
+        fd.append('user_cnic_back_image', user.user_cnic_back_image, user.user_cnic_back_image);
+        fd.append('user_wasa_bill_image', user.user_wasa_bill_image, user.user_wasa_bill_image);
+
+
+        axios.post('http://localhost:3003/api/create_consumer', fd)
+            .then(response => {
+                console.log("hi htere", response.data.status);
+                if (response.data.status === 201) {
+                    return [] ;
+                } else if (response.data.status === 400) {
+                    return response.data.json().then(data => {
+                        return data.errors;
+                    });
+                }else {
+                    throw new Error();
+                }
             });
-        } else {
-            throw new Error();
-        }
     }
 }

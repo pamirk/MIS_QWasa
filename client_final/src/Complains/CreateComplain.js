@@ -2,17 +2,23 @@ import React, {Component} from 'react';
 import axios from "axios";
 import {Button, Col, Container, Form, FormGroup, FormText, Input, Label, Spinner} from 'reactstrap';
 import {Avatar, Layout, message} from "antd";
+import Util from "../components/Util";
+import Dictaphone from "./Dictaphone";
 
-const { Header, Footer, Sider, Content } = Layout;
+const {Header, Footer, Sider, Content} = Layout;
 
 const uuidv4 = require('uuid/v4');
 
 class CreateComplain extends Component {
+
+
     constructor(props) {
         super(props);
         this.state = {
             loading: false,
-            image: null
+            image: null,
+            context: this.props.context,
+            authUser: this.props.context.authenticatedUser
         };
     }
 
@@ -27,19 +33,19 @@ class CreateComplain extends Component {
     };
     postComplain = () => {
         const complain_id = uuidv4();
-        console.log('here is complain_id',complain_id);
+        console.log('here is complain_id', complain_id);
 
-        if (!(this.account_number.value && this.complain_body.value)) {
+        if (!(this.complain_body.value)) {
             this.showErrorMessage('Please provide all the Fields', 5);
         } else {
             const fd = new FormData();
 
 
             fd.append('complain_id', complain_id);
-            fd.append('account_number', this.account_number.value);
+            fd.append('account_number', this.state.authUser.account_number);
             fd.append('complain_body', this.complain_body.value);
             fd.append('complain_status', "Its Very first step");
-            console.log(complain_id)
+            console.log(complain_id);
             console.log(this.account_number.value)
             console.log(this.complain_body.value)
             axios.post('http://localhost:3003/api/complain_register', fd)
@@ -55,7 +61,7 @@ class CreateComplain extends Component {
                         if ((this.state.image && this.state.image.name)) {
                             this.postAttachment(complain_id)
                         } else {
-                            this.showErrorMessage('Successfully Register EmplOyee', 5);
+                            Util.showSuccessMessage('Successfully Register your Complaint', 5);
                         }
 
 
@@ -66,29 +72,29 @@ class CreateComplain extends Component {
 
 
     postAttachment = (complain_id) => {
-            const fd = new FormData();
-            fd.append('attachment_id', uuidv4());
-            fd.append('complain_id', complain_id);
-            fd.append('attachment_file_type', this.state.image.type);
-            fd.append('image', this.state.image, this.state.image.name);
+        const fd = new FormData();
+        fd.append('attachment_id', uuidv4());
+        fd.append('complain_id', complain_id);
+        fd.append('attachment_file_type', this.state.image.type);
+        fd.append('image', this.state.image, this.state.image.name);
 
 
-            axios.post('http://localhost:3003/api/one_complain_register_Attachment', fd)
-                .then(d => {
-                    const data = d.data;
-                    console.log(data);
-                    this.setState({
-                        loading: false,
-                    });
-                    if (data.err) {
-                        this.showErrorMessage(data.err, 5);
-                    } else if (data.status === 200) {
+        axios.post('http://localhost:3003/api/postConsumerAttachment', fd)
+            .then(d => {
+                const data = d.data;
+                console.log(data);
+                this.setState({
+                    loading: false,
+                });
+                if (data.err) {
+                    this.showErrorMessage(data.err, 5);
+                } else if (data.status === 200) {
 
-                        this.showErrorMessage('Successfully Register EmplOyee', 5);
-                        /*this.props.history.push(`/employeeHome/${data.employee_id}`);*/
-                    }
+                    Util.showSuccessMessage('Successfully Register your Complaint!', 5);
+                    this.props.history.push(`/complain_dashboard`);
+                }
 
-                })
+            })
     };
 
     onImageDataChange = (e) => {
@@ -111,9 +117,9 @@ class CreateComplain extends Component {
                         <FormGroup row>
                             <Label for="account_number" sm={2}>Account Number</Label>
                             <Col sm={10}>
-                                <Input innerRef={node => this.account_number = node}
+                                <Input disabled="disabled" innerRef={node => this.account_number = node}
                                        type="text" name="account_number" id="account_number"
-                                       placeholder="111-111-111"/>
+                                       placeholder={this.state.authUser.account_number}/>
                             </Col>
                         </FormGroup>
                         <FormGroup row>
@@ -158,15 +164,6 @@ class CreateComplain extends Component {
                         ? <Spinner style={{width: '6rem', height: '6rem'}}/>
                         : this.showRegistrationForm()}
                 </Container>
-
-                <Layout>
-                    <Sider>Sider</Sider>
-                    <Layout>
-                        <Header>Header</Header>
-                        <Content>Content</Content>
-                        <Footer>Footer</Footer>
-                    </Layout>
-                </Layout>
             </>
         );
     }

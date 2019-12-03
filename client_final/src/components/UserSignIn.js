@@ -39,7 +39,7 @@ export default class UserSignIn extends Component {
                 <input
                   id="username"
                   name="username"
-                  type="email"
+                  type="text"
                   value={username}
                   onChange={this.change}
                   placeholder="Email" />
@@ -53,7 +53,7 @@ export default class UserSignIn extends Component {
               </React.Fragment>
             )} />
           <p>
-            Don't have a user account? <Link to="/signup">Click here</Link> to sign up!
+            Are you Wasa consumer but Don't have a user account? <Link to="/signup">Click here</Link> to sign up! Now
           </p>
         </div>
       </div>
@@ -76,21 +76,30 @@ export default class UserSignIn extends Component {
     const { from } = this.props.location.state || { from: { pathname: '/authenticated' } };
     const { username, password , role} = this.state;
 
-    context.actions.signIn(username, password, role)
-      .then((user) => {
-        if (user === null) {
-          this.setState(() => {
-            return { errors: [ 'Sign-in was unsuccessful' ] };
+    if (role === 'consumer') {
+      context.actions.consumerSignIn(username, password)
+          .then(() => {
+            this.props.history.push('/complain_dashboard');
           });
-        } else {
-          this.props.history.push(from);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        this.props.history.push('/error');
-      });
-  }
+
+    } else {
+      //not a consumer login
+      context.actions.signIn(username, password, role)
+          .then((user) => {
+            if (user === null) {
+              this.setState(() => {
+                return { errors: [ 'Sign-in was unsuccessful' ] };
+              });
+            } else {
+              this.props.history.push(from);
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            this.props.history.push('/error');
+          });
+    }
+  };
 
   cancel = () => {
     this.props.history.push('/');

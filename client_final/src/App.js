@@ -31,13 +31,19 @@ import CreateComplain from "./Complains/CreateComplain";
 import CreateDivision from "./components/CreateDivision";
 import CreateSubDivision from "./components/CreateSubDivision";
 import Sider from "./components/Sider";
+import ComplainDashboard from "./Complains/ComplainDashboard";
+import ComplaintDetails from "./Complains/ComplaintDetails";
 
 const HeaderWithContext = withContext(Header);
 const SiderWithContext = withContext(Sider);
+const HomeWithContext = withContext(Home);
 const AuthWithContext = withContext(Authenticated);
 const UserSignUpWithContext = withContext(UserSignUp);
 const UserSignInWithContext = withContext(UserSignIn);
 const UserSignOutWithContext = withContext(UserSignOut);
+const ComplainDashboardWithContext = withContext(ComplainDashboard);
+const CreateComplainWithContext = withContext(CreateComplain);
+const ComplaintDetailsWithContext = withContext(ComplaintDetails);
 
 export default () => (
     <Router>
@@ -46,7 +52,7 @@ export default () => (
             <SiderWithContext>
                 <Switch>
 
-                    <Route exact path="/" component={Home}/>
+                    <Route exact path="/" component={HomeWithContext}/>
                     <PrivateRoute path="/create_employee" component={CreateEmployee}/>
                     <PrivateRoute path="/create_department" component={CreateDepartment}/>
                     <PrivateRoute path="/create_designation" component={CreateDesignation}/>
@@ -63,8 +69,9 @@ export default () => (
                     <PrivateRoute exact path="/employeeDesignation/:id" component={EmployeeDesignationForm}/>
                     <PrivateRoute path="/employee_list" component={EmployeeList}/>
 
-                    <PrivateRoute path="/complain_register" component={CreateComplain}/>
-                    <PrivateRoute path="/complain_dashboard" component={ComplainDashboard}/>
+                    <PrivateRoute path="/complain_register" component={CreateComplainWithContext}/>
+                    <PrivateRoute path="/complain_dashboard" component={ComplainDashboardWithContext}/>
+                    <PrivateRoute path="/complaint/:id" component={ComplaintDetailsWithContext}/>
 
 
                     <PrivateRoute path="/authenticated" component={AuthWithContext}/>

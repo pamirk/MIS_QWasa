@@ -92,51 +92,6 @@ class CreateEmployee extends Component {
             });
         }
     };
-    postData = () => {
-
-        this.setState({
-            loading: true,
-        });
-
-        fetch('http://localhost:3003/api/employee_create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'type': 'formData'
-            },
-            body: JSON.stringify({
-                cnic: this.cnic.value,
-                fullname: this.fullname.value,
-                fathername: this.fathername.value,
-                appointment_date: this.appointment_date.value,
-                birth_date: this.birth_date.value,
-                gender: this.state.gender,
-                email: this.email.value,
-                local: this.local.value,
-                employee_photo: this.state.image,
-            })
-        })
-            .then(data => data.json())
-            .then(data => {
-                console.log(data)
-                this.setState({
-                    loading: false,
-                });
-                if (data.status === 500) {
-                    this.setState({
-                        alert: 500,
-                    });
-                } else if (data.status === 200) {
-                    this.setState({
-                        alert: 200,
-                    });
-
-                    this.props.history.push(`/employeeHome/${data.employee_id}`);
-                }
-
-            })
-
-    };
     render() {
         return (
             <>

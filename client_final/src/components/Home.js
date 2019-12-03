@@ -1,11 +1,21 @@
 import React, {Component} from 'react';
 import {Button, Card, CardText, CardTitle, Col, Container, Row} from 'reactstrap';
-import {Link} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 import {Divider} from "antd";
 
 
 export default class Home extends Component {
     render() {
+        const {context} = this.props;
+        const authUser = context.authenticatedUser;
+
+        if (!authUser) {
+            return <Redirect to='/signin'/>
+        }
+
+        if (authUser && authUser.user_name) {
+            return <Redirect to='/complain_dashboard'/>
+        }
         return (
             <>
                 <Container>

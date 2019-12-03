@@ -7,9 +7,9 @@ const storage = multer.diskStorage({
         cb(null, './uploads/')
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname)
+        cb(null, Date.now() + Math.random(100) + '-' + file.originalname + ".jpg")
     }
-})
+});
 const fileFilter = (req, file, cb) => {
     if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg') {
         cb(null, true)
@@ -59,9 +59,12 @@ router.post("/employee_designation_update", upload.single('image'), employeeCont
 router.post("/employee_address_update", upload.single('image'), employeeController.employee_address_update);
 
 router.get("/complain_list", employeeController.complain_list);
+router.get("/consumer_complain_list/:id", employeeController.consumer_complain_list);
 router.get("/single_complain/:id", employeeController.single_complain);
 router.post("/complain_register", upload.single('image'), employeeController.complain_register);
-router.post("/one_complain_register_Attachment", upload.single('image'), employeeController.one_complain_register_Attachment);
+router.post("/postConsumerAttachment", upload.single('image'), employeeController.postConsumerAttachment);
+//router.post("/one_complain_register_Attachment", upload.single('image'), employeeController.one_complain_register_Attachment);
+router.post("/create_consumer", upload.fields([{name: 'user_cnic_front_image'}, {name: 'user_cnic_back_image'}, {name: 'user_wasa_bill_image'}]), employeeController.create_consumer);
 
 module.exports = router;
 

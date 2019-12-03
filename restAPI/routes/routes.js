@@ -22,6 +22,45 @@ const users = [];
  * @param {Response} res - The Express Response object.
  * @param {Function} next - The function to call to pass execution to the next middleware.
  */
+
+// Construct a router instance.
+const router = express.Router();
+
+router.post('/getConsumer', (req, res) => {
+    const credentials = {
+        cnic: req.body.cnic.trim(),
+        password: req.body.password.trim(),
+    };
+    const querySting = `SELECT *
+                        from user_registration_table
+                        where user_cnic = ?;`;
+    connection.query(querySting, [credentials.cnic], (err, rows, fields) => {
+        if (err) {
+            console.log("database error could't find consumer:  ");
+            res.status(401).json({message: 'message with cnic not found'});
+
+        }
+
+        const consumer = rows[0];
+        console.log("success consumer: cnic is ", consumer.user_cnic);
+
+        const authenticated = (consumer.user_password === credentials.password);
+
+        if (authenticated) {
+
+            console.log(`Authentication successful for cnic: ${consumer.user_cnic}`);
+
+
+            res.json(consumer);
+
+        } else {
+            res.status(401).json({message: 'Authentication failure for username'});
+        }
+
+    });
+});
+
+
 const authenticateUser = (req, res, next) => {
     let message = null;
 
@@ -94,8 +133,6 @@ const authenticateUser = (req, res, next) => {
 
 };
 
-// Construct a router instance.
-const router = express.Router();
 
 // Route that returns the current authenticated user.
 router.post('/getusers', authenticateUser, (req, res) => {
@@ -103,6 +140,7 @@ router.post('/getusers', authenticateUser, (req, res) => {
     console.debug(user)
     res.json(user);
 });
+
 
 // Route that creates a new user.
 router.post('/users', [

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {Layout, Menu, Icon, Divider} from 'antd';
+import {Layout, Menu, Icon, Divider, Button} from 'antd';
 import {Link, NavLink} from "react-router-dom";
 import {CardTitle, Container} from "reactstrap";
 
@@ -28,13 +28,59 @@ export default class MySider extends React.Component {
         }
     };
 
+
     render() {
         const {context} = this.props;
         const authUser = context.authenticatedUser;
+        const menulinks = (authUser && authUser.user_cnic)
+            ?
+            <Menu theme="dark" mode="vertical" defaultSelectedKeys={['100']}>
+                <Menu.Item key="8">
+                    <NavLink activeStyle={{color: 'white'}} to="/complain_register">Add Complaint</NavLink>
+                </Menu.Item>
+                <Menu.Item key="9">
+                    <NavLink activeStyle={{color: 'white'}} to="/complain_dashboard">View
+                        Complaints</NavLink>
+                </Menu.Item>
+            </Menu>
+            :
+            <Menu theme="dark" mode="vertical" defaultSelectedKeys={['100']}>
+
+                <Menu.Item key="0"><NavLink activeStyle={{color: 'white'}} to="/"
+                                            className="nav-text"> Home </NavLink></Menu.Item>
+
+                <Divider/>
+                <Menu.Item key="1">
+                    <NavLink activeStyle={{color: 'white'}}
+                             to="/create_employee" className="nav-text"> Register Employee </NavLink>
+                </Menu.Item>
+                <Menu.Item key="3">
+                    <NavLink activeStyle={{color: 'white'}} to="/employee_list">All Employees</NavLink>
+                </Menu.Item>
+                <Menu.Item key="4">
+                    <NavLink activeStyle={{color: 'white'}} to="/create_designation">Add
+                        Designation</NavLink>
+                </Menu.Item>
+                <Menu.Item key="5">
+                    <NavLink activeStyle={{color: 'white'}} to="/create_department">Add
+                        Department</NavLink>
+                </Menu.Item>
+                <Menu.Item key="6">
+                    <NavLink activeStyle={{color: 'white'}} to="/create_division">Add Division</NavLink>
+                </Menu.Item>
+                <Menu.Item key="7">
+                    <NavLink activeStyle={{color: 'white'}} to="/create_sub_division">Add Sub
+                        Division</NavLink>
+                </Menu.Item>
+                <Menu.Item key="8">
+                    <NavLink activeStyle={{color: 'white'}} to="/complain_dashboard">View
+                        Complaints</NavLink>
+                </Menu.Item>
+                <Divider/>
+            </Menu>;
 
         return (
             <Layout>
-
 
                 {authUser ? (
                     <>
@@ -47,41 +93,7 @@ export default class MySider extends React.Component {
                             onCollapse={(collapsed, type) => {
                                 console.log(collapsed, type);
                             }}>
-                            <Menu theme="dark" mode="vertical" defaultSelectedKeys={['100']} >
-
-                                <Menu.Item key="0"><NavLink activeStyle={{color: 'white'}} to="/"
-                                                            className="nav-text"> Home </NavLink></Menu.Item>
-
-                                <Divider/>
-
-                                <Menu.Item key="1">
-                                    <NavLink activeStyle={{color: 'white'}}
-                                             to="/create_employee" className="nav-text"> Register Employee </NavLink>
-                                </Menu.Item>
-                                <Menu.Item key="3">
-                                    <NavLink activeStyle={{color: 'white'}} to="/employee_list">All Employees</NavLink>
-                                </Menu.Item>
-                                <Menu.Item key="4">
-                                    <NavLink activeStyle={{color: 'white'}} to="/create_designation">Add
-                                        Designation</NavLink>
-                                </Menu.Item>
-                                <Menu.Item key="5">
-                                    <NavLink activeStyle={{color: 'white'}} to="/create_department">Add
-                                        Department</NavLink>
-                                </Menu.Item>
-                                <Menu.Item key="6">
-                                    <NavLink activeStyle={{color: 'white'}} to="/create_division">Add Division</NavLink>
-                                </Menu.Item>
-                                <Menu.Item key="7">
-                                    <NavLink activeStyle={{color: 'white'}} to="/create_sub_division">Add Sub
-                                        Division</NavLink>
-                                </Menu.Item>
-                                <Menu.Item key="7">
-                                    <NavLink activeStyle={{color: 'white'}} to="/complain_dashboard">Add Sub
-                                        Division</NavLink>
-                                </Menu.Item>
-                                <Divider/>
-                            </Menu>
+                            {menulinks}
                         </Sider>
                     </>
                 ) : (
@@ -89,6 +101,7 @@ export default class MySider extends React.Component {
 
                     </>
                 )}
+
 
                 <Layout style={{height: "100%"}}>
                     {this.props.children}

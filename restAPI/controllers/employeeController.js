@@ -8,11 +8,42 @@ const connection = mysql.createConnection({
 exports.index = async (req, res) => {
     res.json({status: 200})
 };
+exports.create_consumer = async (req, res) => {
+
+    console.log("inside create_consumer");
+    console.log(req.body);
+    console.log(req.files);
+    const Values = [
+        req.body.account_number,
+        req.body.user_cnic,
+        req.body.user_name,
+        req.body.user_email,
+        req.body.user_password,
+        req.body.user_address,
+        req.body.user_contact,
+        req.files.user_cnic_front_image[0].path,
+        req.files.user_cnic_back_image[0].path,
+        req.files.user_wasa_bill_image[0].path,
+    ];
+    console.log(Values);
+
+    const querySting = "insert into user_registration_table(account_number, user_cnic, user_name, user_email, user_password, " +
+        "user_address, user_contact, user_cnic_front_image, user_cnic_back_image, user_wasa_bill_image) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+    connection.query(querySting, Values, (err, rows, fields) => {
+        console.log("inside create_consumer");
+        if (err) {
+            console.log("400", err.sqlMessage);
+            return res.json({status: 201, errors: err.sqlMessage});
+        }
+        console.log("201");
+        return res.json({status: 201});
+    });
+};
+
 exports.create_employee_designation = async (req, res) => {
 
     console.log(req.body);
-    console.log(req.file.path);
-
     const employeeValues = [req.body.employee_id, req.body.des_id,
         req.body.designation_order_date, req.body.des_appointment_date, req.file.path];
 
@@ -33,7 +64,7 @@ exports.create_employee_designation = async (req, res) => {
 exports.complain_register = async (req, res) => {
     const Values = [
         req.body.complain_id,
-        req.body.account_number,
+        req.body.account_number.toString(),
         req.body.complain_body,
         req.body.complain_status,
     ];
@@ -50,11 +81,13 @@ exports.complain_register = async (req, res) => {
         res.json({status: 200})
     });
 };
-exports.one_complain_register_Attachment = async (req, res) => {
+
+
+exports.postConsumerAttachment = async (req, res) => {
     console.log(req.body);
     const Values = [
         req.body.attachment_id,
-        req.body.complain_id,
+        req.body.complain_id.toString(),
         req.file.path,
         req.body.attachment_file_type
     ];
@@ -73,6 +106,7 @@ exports.one_complain_register_Attachment = async (req, res) => {
         res.json({status: 200})
     });
 };
+
 exports.employee_designation_details = async (req, res) => {
     console.log(req.params.id);
 
@@ -136,7 +170,7 @@ exports.get_employee_status = async (req, res) => {
     console.log(req.params.id);
     try {
         const querySting = `SELECT * from employee_login where employee_id = ? ;`;
-        connection.query(querySting, [req.params.id],(err, rows, fields) => {
+        connection.query(querySting, [req.params.id], (err, rows, fields) => {
             console.log(" inside training_list");
             if (err) {
                 console.log(err);
@@ -150,7 +184,7 @@ exports.get_employee_status = async (req, res) => {
             console.log(is_active);
             res.json({status: 200, is_active: is_active})
         });
-    }catch (e) {
+    } catch (e) {
         res.sendStatus(e.message);
     }
 
@@ -608,6 +642,23 @@ exports.complain_list = async (req, res) => {
     const querySting = "SELECT * FROM consumer_complains_table";
 
     connection.query(querySting, (err, rows, fields) => {
+        console.log("inside complain_list");
+        if (err) {
+            res.json({status: 500, err: err});
+            return
+        }
+
+        console.log(rows);
+        res.json({status: 200, rows});
+    });
+};
+exports.consumer_complain_list = async (req, res) => {
+    console.log("responding to complain_list route");
+
+
+    const querySting = "SELECT * FROM consumer_complains_table where account_number = ?";
+
+    connection.query(querySting, [req.params.id], (err, rows, fields) => {
         console.log("inside complain_list");
         if (err) {
             res.json({status: 500, err: err});
