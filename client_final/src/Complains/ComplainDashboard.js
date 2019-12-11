@@ -3,6 +3,7 @@ import {Link, Redirect} from "react-router-dom";
 import ComplaintList from "./ComplaintList";
 import './complaint.css'
 import {Card, Col, Row} from "antd";
+import {Container} from "reactstrap";
 
 export default class ComplainDashboard extends Component {
     state = {
@@ -76,32 +77,46 @@ export default class ComplainDashboard extends Component {
         return (
             <>
                 {(!this.state.loading) &&
-                <div>
-                    <Row>
-                        <Col sm={18}>
+                <Container>
+                    <div style={{padding: '30px' }}>
+                        <Row gutter={16}>
+                            <Col span={4}>
+                                <Card title="Total" bordered={false}>
+                                    0
+                                </Card>
+                            </Col>
+                            <Col span={4}>
+                                <Card title="New" bordered={false}>
+                                    0
+                                </Card>
+                            </Col>
+                            <Col span={4}>
+                                <Card title="Pending" bordered={false}>
+                                    0
+                                </Card>
+                            </Col>
+                            <Col span={4}>
+                                <Card title="Resolved" bordered={false}>
+                                    0
+                                </Card>
+                            </Col>
+                            <Col span={4}>
+                                <Card title="Forwarded" bordered={false}>
+                                    0
+                                </Card>
+                            </Col>
+                        </Row>
+                    </div>
 
-                            <Card>
+
+                    <Row >
+                        <Col>
+                            <>
                                 <ComplaintList complaints={this.state.consumer_complaints}/>
-                            </Card>
-                        </Col>
-                        <Col sm={6}>
-
-                            <Card title="Notifications" bordered={false} style={{ width: 300 }}>
-                                <p>Notifications 1</p>
-                                <p>Notifications 2</p>
-                                <p>Notifications 3</p>
-                            </Card>
-                        </Col>
-                        <Col sm={6}>
-
-                            <Card title="Stats" bordered={false} style={{ width: 300 }}>
-                                <p>Notifications 1</p>
-                                <p>Notifications 2</p>
-                                <p>Notifications 3</p>
-                            </Card>
+                            </>
                         </Col>
                     </Row>
-                </div>
+                </Container>
                 }
             </>
         );

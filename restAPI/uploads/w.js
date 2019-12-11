@@ -155,21 +155,16 @@ app.post("/api/update_is_acknowledged", function (req, res, next) {
         if (error) throw console.log(error);
         res.send(results);
     })
-});
+})
 
 app.post("/api/single_complain_detail", function (req, res, next) {
     var complain_id = req.body.complain_id;
-    var query = `SELECT * FROM consumer_complains_table 
-                LEFT JOIN consumer_attachment ON consumer_complains_table.complain_id = consumer_attachment.complain_id 
-                WHERE consumer_complains_table.complain_id LIKE '${complain_id}' 
-                UNION SELECT * FROM consumer_complains_table 
-                RIGHT JOIN consumer_attachment ON consumer_complains_table.complain_id = consumer_attachment.complain_id 
-                WHERE consumer_complains_table.complain_id LIKE '${complain_id}'`;
+    var query = `SELECT * FROM consumer_complains_table LEFT JOIN consumer_attachment ON consumer_complains_table.complain_id = consumer_attachment.complain_id WHERE consumer_complains_table.complain_id LIKE '${complain_id}' UNION SELECT * FROM consumer_complains_table RIGHT JOIN consumer_attachment ON consumer_complains_table.complain_id = consumer_attachment.complain_id WHERE consumer_complains_table.complain_id LIKE '${complain_id}'`
     connection.query(query, function (error, results, fields) {
         if (error) throw error;
         res.send(results);
     })
-});
+})
 
 
 app.post("/api/update_status", function (req, res, next) {
@@ -311,7 +306,7 @@ app.post("/api/complains", upload.none(), function (req, res, next) {
 
 app.post("/api/reporting_complains", upload.none(), function (req, res, next) {
     var complains_reporting_id, complain_id, reporting_id, forwards_to, forwards_by, forwards_message,
-        suggested_date_reply, emp_name, status, is_current;
+        suggested_date_reply, emp_name, is_reply, status, is_current;
     complains_reporting_id = req.body.complains_reporting_id;
     complain_id = req.body.complain_id;
     reporting_id = req.body.reporting_id;

@@ -18,6 +18,7 @@ export default class Promotion extends Component {
             .then(data => data.json())
             .then(data => {
                 this.setState({
+                    data: data,
                     tabledata: this.getformateData(data),
                     loading: false
                 });
@@ -191,9 +192,10 @@ export default class Promotion extends Component {
                 <span>
 
                         <Link onClick={() => {
+
                             this.setState({
                                 visible_showpromoteModal: true,
-                                key: record.key
+                                Indexkey: record.key
                             });
                         }}>
                           Edit
@@ -205,8 +207,6 @@ export default class Promotion extends Component {
     ];
 
     render() {
-        const {Text} = Typography;
-        const {data} = this.props;
 
         return (
             <>
@@ -225,6 +225,7 @@ export default class Promotion extends Component {
                             title="Promote Employee"
                             visible={this.state.visible_showpromoteModal}
                             onOk={this.handleOk}
+                            destroyOnClose={true}
                             onCancel={this.handleCancel}
                             footer={[
                                 <Button key="back" type="danger" onClick={this.handleOk}>
@@ -232,7 +233,9 @@ export default class Promotion extends Component {
                                 </Button>
                             ]}>
 
-                            <PromoteDesignation hideHandler={this.hideHandler} id={this.props.id}
+
+
+                            <PromoteDesignation Indexkey={this.state.Indexkey} hideHandler={this.hideHandler} id={this.props.id}
                                                 data={this.state.data}/>
 
 

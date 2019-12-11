@@ -1,4 +1,4 @@
-import {Button, Form, Input, message, Select} from 'antd';
+import {Button, DatePicker, Form, Input, message, Select} from 'antd';
 import React, {Component} from 'react';
 import '../base.css';
 import axios from "axios";
@@ -8,7 +8,7 @@ const FormItem = Form.Item;
 const {Option} = Select;
 
 type MyProps = { hideHandler: any, id: any, data: any, form: any };
-type MyState = { divisions: any, loading: Boolean, fimage: string, image: any, departs: any, designationsItems: any, selectedDepartemnt: any };
+type MyState = { transfer_Date:any,joining_Date:any, divisions: any, loading: Boolean, fimage: string, image: any, departs: any, sub_Div_Items: any, tubwell_Items: any };
 
 class TransferComponent extends Component<MyProps, MyState> {
     view: HTMLDivElement | undefined = undefined;
@@ -22,18 +22,49 @@ class TransferComponent extends Component<MyProps, MyState> {
             fimage: '',
             image: null,
             divisions: null,
-            designationsItems: null,
-            selectedDepartemnt: null,
-            departs: null
+            sub_Div_Items: null,
+            tubwell_Items: null,
+            departs: null,
+            transfer_Date: null,
+            joining_Date: null
 
         };
     }
 
     componentDidMount() {
         this.setBaseInfo();
+        this.getDivisionList();
 
     }
 
+    getDivisionList = () => {
+        let items: any[] = [];
+        fetch('http://localhost:3003/api/division_list', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(data => data.json())
+            .then(data => {
+                console.log("getDepartmentList is here: ", data);
+
+                for (let i = 1; i <= data.length; i++) {
+                    const division = data[i - 1];
+                    console.log(division.div_id, "department.department_id: ", division.div_title);
+
+                    items.push(
+                        <Option value={division.div_id}>{division.div_title}</Option>)
+                }
+
+
+                this.setState({
+                    divisions: items
+                });
+            })
+
+
+    };
     setBaseInfo = () => {
         const {data, form} = this.props;
         if (data) {
@@ -45,11 +76,9 @@ class TransferComponent extends Component<MyProps, MyState> {
             });
         }
     };
-
     getViewDom = (ref: HTMLDivElement) => {
         this.view = ref;
     };
-
     handlerSubmit = (event: React.MouseEvent) => {
         event.preventDefault();
         const {form} = this.props;
@@ -66,6 +95,98 @@ class TransferComponent extends Component<MyProps, MyState> {
 
 
     };
+    onDivisionValueSelected = (e: any) => {
+        //const div = this.props.form.getFieldValue('Division')
+        console.log(" Lo G : ", e);
+        this.getSubDivisionsList(e);
+    };
+    onSubDivisionValueSelected = (e: any) => {
+        console.log(" onSubDivisionValueSelected  : ", e);
+        this.getTubwellsList(e);
+
+    };
+
+    getTubwellsList = (e:any) => {
+        let items: any[] = [];
+        fetch(`http://localhost:3003/api/tubwells_list/${e}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(data => data.json())
+            .then(data => {
+                console.log(data);
+
+                for (let i = 1; i <= data.length; i++) {
+                    const sub_div = data[i - 1];
+                    items.push(
+                        <Option value={sub_div.tubewell_id}>{sub_div.tubewell_name}</Option>)
+                }
+
+                this.setState({
+                    tubwell_Items: items
+                });
+            })
+
+    };
+    getSubDivisionsList = (e:any) => {
+        let items: any[] = [];
+        fetch(`http://localhost:3003/api/sub_division_list/${e}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(data => data.json())
+            .then(data => {
+                console.log(data);
+
+                for (let i = 1; i <= data.length; i++) {
+                    const sub_div = data[i - 1];
+                    items.push(
+                        <Option value={sub_div.sd_id}>{sub_div.sub_div_name}</Option>)
+                }
+
+                this.setState({
+                    sub_Div_Items: items
+                });
+            })
+
+    };
+    disabledStartDate = (startValue:any) => {
+        const { joining_Date } = this.state;
+        if (!startValue || !joining_Date) {
+            return false;
+        }
+        return startValue.valueOf() > joining_Date.valueOf();
+    };
+
+    disabledEndDate = (endValue:any) => {
+        const { transfer_Date } = this.state;
+        if (!endValue || !transfer_Date) {
+            return false;
+        }
+        return endValue.valueOf() <= transfer_Date.valueOf();
+    };
+
+    transfer_Date_Change = (value:any) => {
+        // const date = this.props.form.getFieldValue('transfer_Date')
+        this.onChange('transfer_Date', value);
+
+    };
+    joining_Date_Change = (value:any) => {
+        // const date = this.props.form.getFieldValue('joining_Date')
+        this.onChange('joining_Date', value);
+
+    };
+    onChange = (field:any, value:any) => {
+        // @ts-ignore
+        this.setState({
+            [field]: value,
+        });
+    };
+
 
     getDataOutofForm = () => {
         const {form} = this.props;
@@ -73,25 +194,29 @@ class TransferComponent extends Component<MyProps, MyState> {
 
         const fd = new FormData();
         fd.append("employee_id", this.props.id);
+        fd.append('image', this.state.image, this.state.image.name);
 
         Object.keys(form.getFieldsValue()).forEach((value, key, data) => {
 
             console.log(value, form.getFieldValue(value));
             fd.append(value, form.getFieldValue(value));
         });
-        axios.post('http://localhost:3003/api/add_emoployee_transfer', fd)
+        axios.post('http://localhost:3003/api/transfer_emoployee', fd)
             .then(d => {
                 if (d.status == 200) {
                     message.success("Updated Successfully", 5);
                     message.success("Updated Successfully", 5);
                     this.props.hideHandler()
-                } else if (d.status == 500) {
-                    message.error("Error", 5);
-                    message.error("Error", 5);
-
                 }
             })
 
+    };
+
+    onImageDataChange = (e:any) => {
+        let files = e.target.files;
+        this.setState({
+            image: files[0],
+        });
     };
 
     formItemLayout = {
@@ -104,7 +229,6 @@ class TransferComponent extends Component<MyProps, MyState> {
             sm: {span: 16},
         },
     };
-
     tailFormItemLayout = {
         wrapperCol: {
             xs: {
@@ -117,66 +241,69 @@ class TransferComponent extends Component<MyProps, MyState> {
             },
         },
     };
-
     render() {
         const {form: {getFieldDecorator},} = this.props;
         return (
             <div className='baseView' ref={this.getViewDom}>
                 <Form layout={"vertical"} {...this.formItemLayout} >
-                    <FormItem label="Transfer Date">{
-                        getFieldDecorator('Transfer_Date', {
-                            rules: [{required: true, message: "Please Provide Start Date of Training"}]
-                        })(<input type="date" name="train_start_date "
-                                  id="train_start_date"
-                                  placeholder="Training Start Date"/>)}
-                    </FormItem>
-                    <FormItem label="Joining Date">{
-                        getFieldDecorator('Joining_Date', {
-                            rules: [{required: true, message: "Please Provide End Date of Designation"}]
-                        })(<input type="date" name="train_end_date "
-                                  id="train_end_date"
-                                  placeholder="Training End Date"/>)}
-                    </FormItem>
 
-                    <FormItem label="Descrition">{
-                        getFieldDecorator('Description', {
-                            rules: [{required: true, min: 10, message: "Descrition not valid (min 10)"}]
-                        })(<TextArea rows={4}/>)}
-                    </FormItem>
 
                     <FormItem label="Division">{
                         getFieldDecorator('Division', {
-                            rules: [{required: true, min: 3, message: "Location Name not valid (min 3)"}]
+                            rules: [{required: true, message: "Division not selected"}]
                         })(
-                            <Select value='Zargoon'>
-                                <Option value='Zargoon'>Zargoon</Option>
-                                <Option value='Chiltan'>Chiltan</Option>
+                            <Select onChange={this.onDivisionValueSelected}>
+                                {this.state.divisions}
                             </Select>
                         )}
                     </FormItem>
 
                     <FormItem label="Sub Division">{
                         getFieldDecorator('Sub_Division', {
-                            rules: [{required: true, min: 3, message: "Location Name not valid (min 3)"}]
+                            rules: [{required: true, message: "SubDivision not selected"}]
                         })(
-                            <Select >
-                                <Option value='Zargoon'>Gool Mandi</Option>
-                                <Option value='Chiltan'>Satellite Town</Option>
+                            <Select onChange={this.onSubDivisionValueSelected}>
+                                {this.state.sub_Div_Items}
                             </Select>
                         )}
                     </FormItem>
 
                     <FormItem label="Tubewell Name">{
-                        getFieldDecorator('Tubewell', {
-                            rules: [{required: true, min: 3, message: "Location Name not valid (min 3)"}]
+                        getFieldDecorator('tubewell_id', {
+                            rules: [{required: true, message: "Tubewell not selected"}]
                         })(
                             <Select >
-                                <Option value='Zargoon'>name 1</Option>
-                                <Option value='Chiltan'>name 1</Option>
+                                {this.state.tubwell_Items}
                             </Select>
                         )}
                     </FormItem>
 
+
+
+                    <FormItem label="transfer Date">{
+                        getFieldDecorator('transfer_Date', {
+                            rules: [{required: true, message: "Please Provide Transfer Date"}]
+                        })(<DatePicker format="YYYY-MM-DD" disabledDate={this.disabledStartDate} onChange={this.transfer_Date_Change} placeholder="Provide Transfer Date"/>)}
+                    </FormItem>
+                    <FormItem label="joining Date">{
+                        getFieldDecorator('joining_Date', {
+                            rules: [{required: true, message: "Please Provide Joining Date"}]
+                        })(
+                            <DatePicker format="YYYY-MM-DD" disabledDate={this.disabledEndDate}
+                                                  onChange={this.joining_Date_Change} placeholder="Provide Joining Date"/>
+                        )}
+                    </FormItem>
+
+                    <FormItem label="Descrition">{
+                        getFieldDecorator('description', {
+                            rules: [{required: true, min: 10, message: "Descrition not valid (min 10)"}]
+                        })(<TextArea rows={4}/>)}
+                    </FormItem>
+                    <FormItem label="Order Letter">{
+                        getFieldDecorator('order_letter_photo', {
+                            rules: [{required: true,  message: "please provide order letter photo"}]
+                        })(<Input onChange={this.onImageDataChange} type='file' placeholder='order_letter_photo'/>)}
+                    </FormItem>
 
                     <Button type="primary" onClick={this.handlerSubmit}>Submit</Button>
                 </Form>

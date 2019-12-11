@@ -56,6 +56,7 @@ export default class UserSignUp extends Component {
                         elements={() => (
                             <React.Fragment>
                                 <input
+
                                     id="account_number"
                                     name="account_number"
                                     type="text"

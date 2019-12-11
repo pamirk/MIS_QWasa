@@ -31,13 +31,13 @@ export default class Transfer extends Component {
         for (let i = 0; i < data.length; i++) {
             const d = data[i];
             mydata.push({
-                key: d.emp_des_id,
+                key: d.transfer_id,
                 Transfer_Date: d.transfer_date.substring(0, 10),
-                Joining_Date: d.Joining_date,
+                Joining_Date: d.joining_date.substring(0, 10),
                 Description: d.description,
                 Division: d.division,
                 Sub_Division: d.sub_division,
-                Tubewell: d.tubewell,
+                Tubewell: d.tubewell_id,
                 status: d.is_active,
             })
         }
@@ -122,15 +122,15 @@ export default class Transfer extends Component {
             if (visible) {
                 setTimeout(() => this.searchInput.select());
             }
-        },
-        render: text => (
+        }/*,
+        render: (text) => (
             <Highlighter
                 highlightStyle={{backgroundColor: '#ffc069', padding: 0}}
                 searchWords={[this.state.searchText]}
                 autoEscape
                 textToHighlight={text.toString()}
             />
-        ),
+        ),*/
     });
     handleSearch = (selectedKeys, confirm) => {
         confirm();
@@ -218,7 +218,7 @@ export default class Transfer extends Component {
                 <>
                     <Col className='p-5'>
                         <Button type="primary" size='large' onClick={this.showpromoteModal}>
-                            Give Employee Promotion
+                            Transfer Current Employee
                         </Button>
 
                         <div className='pt-3'>
@@ -226,6 +226,7 @@ export default class Transfer extends Component {
                         </div>
 
                         <Modal
+                            destroyOnClose={true}
                             title="Promote Employee"
                             visible={this.state.visible_showpromoteModal}
                             onOk={this.handleOk}

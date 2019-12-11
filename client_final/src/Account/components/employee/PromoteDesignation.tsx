@@ -1,4 +1,4 @@
-import {Avatar, Button, Form, message, Select} from 'antd';
+import {Avatar, Button, Form, Input, message, Select} from 'antd';
 import React, {Component} from 'react';
 import '../base.css';
 import axios from "axios";
@@ -6,8 +6,8 @@ import axios from "axios";
 const FormItem = Form.Item;
 const {Option} = Select;
 
-type MyProps = { hideHandler: any , id: any, data: any, form: any };
-type MyState = { divisions: any , loading: Boolean, fimage: string, image: any, departs: any, designationsItems: any, selectedDepartemnt: any };
+type MyProps = { Indexkey: any, hideHandler: any, id: any, data: any, form: any };
+type MyState = { divisions: any, loading: Boolean, fimage: string, image: any, departs: any, designationsItems: any, selectedDepartemnt: any };
 
 class PromoteDesignation extends Component<MyProps, MyState> {
     view: HTMLDivElement | undefined = undefined;
@@ -31,18 +31,59 @@ class PromoteDesignation extends Component<MyProps, MyState> {
     }
 
     componentDidMount() {
-        this.setBaseInfo();
+        if (this.props.Indexkey) {
+            // Object.keys(this.props.Indexkey);
+            console.log("keys    ", this.props.Indexkey);
+
+            this.setBaseInfo();
+
+        } else {
+            console.log("Nothing :(")
+        }
         this.getDepartmentList();
 
     }
 
     setBaseInfo = () => {
-        const {data, form} = this.props;
-        if (data) {
+        const {form} = this.props;
+        const row = this.props.data.filter((item: any) => item.emp_des_id === this.props.Indexkey)
+
+        const data = row[0];
+        console.log("data: -> ", data);
+
+        /*department_city_name: "Quetta"
+        department_description: "Budgeting, recording of all expenses. Payroll & pensions."
+        department_name: "Accounts"
+        des_scale: "BPS_17"
+        des_id: 44
+        des_title: "Computer Programmer"
+        emp_des_appointment_date: "2020-12-25T19:00:00.000Z"
+        emp_des_id: 42
+        emp_des_is_active: 1
+        emp_des_order_date: "2020-12-31T19:00:00.000Z"
+        emp_des_order_letter_photo: null
+
+        department_name: "Accounts"
+        des_photo: null
+        des_title: "Computer Programmer"
+        emp_des_appointment_date: "2020-12-25T19:00:00.000Z"
+        emp_des_order_date: "2020-12-31T19:00:00.000Z"
+
+    */
+        const mydata = {
+            emp_des_order_date: data.emp_des_order_date.substring(0,10),
+            emp_des_appointment_date: data.emp_des_appointment_date.substring(0,10),
+            department_name: data.department_name,
+            des_title: data.des_title,
+            des_photo: data.emp_des_order_letter_photo,
+        };
+        console.log("mydata ", mydata);
+
+        if (mydata) {
             Object.keys(form.getFieldsValue()).forEach(key => {
                 const obj = {};
                 // @ts-ignore
-                obj[key] = data[key] || null;
+                obj[key] = mydata[key] || null;
                 form.setFieldsValue(obj);
             });
         }
@@ -103,13 +144,16 @@ class PromoteDesignation extends Component<MyProps, MyState> {
         })
             .then(data => data.json())
             .then(data => {
-                console.log(data);
+                console.log("getDepartmentList is here: ", data);
 
                 for (let i = 1; i <= data.length; i++) {
                     const department = data[i - 1];
+                    console.log(department.department_name, "department.department_id: ", department.department_name);
+
                     items.push(
                         <option value={department.department_id}>{department.department_name}</option>)
                 }
+
 
                 this.setState({
                     divisions: items
@@ -187,17 +231,17 @@ class PromoteDesignation extends Component<MyProps, MyState> {
                     <FormItem label="Promotion Order Date">{
                         getFieldDecorator('emp_des_order_date', {
                             rules: [{required: true, message: "Please Provide Your Date of Designation"}]
-                        })(<input type="date"  name="designation_date "
-                                       id="designation_date"
-                                       placeholder="Date of Designation"/>)}
+                        })(<Input type="date" name="designation_date "
+                                  id="designation_date"
+                                  placeholder="Date of Designation"/>)}
                     </FormItem>
 
                     <FormItem label="Appointment Date">{
                         getFieldDecorator('emp_des_appointment_date', {
                             rules: [{required: true, message: "Please Provide Designation date"}]
-                        })(<input type="date" name="appointment_date "
-                                       id="appointment_date"
-                                       placeholder="Date of Appointment"/>)}
+                        })(<Input type="date" name="appointment_date "
+                                  id="appointment_date"
+                                  placeholder="Date of Appointment"/>)}
                     </FormItem>
 
                     <FormItem label="Department Name">{
@@ -208,7 +252,7 @@ class PromoteDesignation extends Component<MyProps, MyState> {
                                     onChange={this.onDepartmentMenuChange}
                                     ref={(input) => this.menu = input}>
                                 <option value="N/A">Select Department</option>
-                                {this.state.departs}
+                                {this.state.divisions}
                             </select>
                         )}
                     </FormItem>

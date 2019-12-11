@@ -25,8 +25,8 @@ const ComplaintSummary = ({complaint}) => {
                     <span className="new badge red" data-badge-caption="">Rejected</span>;
     }
     return (
-            <Container>
-                <Card title={"Account Number: "+ complaint.account_number} style={{ width: 300, marginTop: 16 }}>
+            <>
+                <Card title={"Account Number: "+ complaint.account_number} style={{ marginLeft:100,marginTop: 16 }}>
                     <Row>
                         <Col sm={20}>
                             <Meta description={complaint.complain_body}/>
@@ -48,7 +48,7 @@ const ComplaintSummary = ({complaint}) => {
 
                     </Row>
                 </Card>
-            </Container>
+            </>
     );
 }
 

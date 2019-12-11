@@ -165,10 +165,7 @@ export default class Personal extends Component {
                                     <Button key="back" type="danger"  onClick={this.handleOk}>
                                         close
                                     </Button>
-                                ]}
-
-
-                            >
+                                ]}>
                                 <p>This information is used for all HR related tasks, so please make sure it’s
                                     accurate.</p>
 

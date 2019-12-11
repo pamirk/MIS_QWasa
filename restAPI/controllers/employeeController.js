@@ -8,6 +8,158 @@ const connection = mysql.createConnection({
 exports.index = async (req, res) => {
     res.json({status: 200})
 };
+
+
+exports.wreporting_complains = async (req, res) => {
+    var complains_reporting_id, complain_id, reporting_id, forwards_to, forwards_by, forwards_message,
+        suggested_date_reply, emp_name, is_reply, status, is_current;
+    complains_reporting_id = req.body.complains_reporting_id;
+    complain_id = req.body.complain_id;
+    reporting_id = req.body.reporting_id;
+    forwards_to = req.body.forwards_by;
+    forwards_by = req.body.forwards_by;
+    forwards_message = req.body.forwards_message;
+    suggested_date_reply = req.body.suggested_date_reply;
+    emp_name = req.body.emp_name;
+    is_reply = req.body.is_reply;
+    var is_seen = req.body.is_seen || 1;
+    var is_acknowledged = req.body.is_acknowledged || 1;
+    var is_public = req.body.is_public || 1;
+    status = req.body.status || 1;
+    is_current = req.body.is_current || 1;
+    console.log(is_current);
+    console.log(is_reply);
+    console.log(reporting_id);
+    console.log(is_acknowledged);
+    console.log(is_public);
+
+    if (reporting_id === "new") {
+        console.log("new executes")
+        var query = `INSERT INTO complains_reporting_body VALUES('${complains_reporting_id}', 
+                     '${complain_id}', '${forwards_to}', '${forwards_by}', NOW(), 
+                     '${forwards_message}', '${suggested_date_reply}', '${emp_name}', '${is_reply}', '${status}', 
+                        ${is_current}, ${is_seen}, ${is_acknowledged}, ${is_public})`;
+        connection.query(query, function (err, results, fields) {
+            if (err) {
+                console.log("400", err.sqlMessage);
+                return res.json({status: 400, errors: err.sqlMessage});
+            }
+            console.log("201");
+            return res.json({status: 201});
+        })
+
+    } else {
+        var queryCheck = `SELECT COUNT(*) FROM complains_reporting_body WHERE complain_id like '${complain_id}'`;
+        connection.query(queryCheck, function (err, results, fields) {
+            if (err) {
+                console.log("400", err.sqlMessage);
+                return res.json({status: 400, errors: err.sqlMessage});
+            }
+            if (results > 1) {
+                var queryUpdate = `UPDATE complains_reporting_body SET is_current = 0 
+                                    WHERE complains_reporting_id like ${reporting_id}`;
+                connection.query(queryUpdate, function (err, results, fields) {
+                    if (err) {
+                        console.log("400 reporting_id 1", err.sqlMessage);
+                        return res.json({status: 400, errors: err.sqlMessage});
+                    }
+                    var query = `INSERT INTO complains_reporting_body VALUES('${complains_reporting_id}', '${complain_id}', 
+                            '${forwards_to}', '${forwards_by}', NOW(), '${forwards_message}', 
+                            '${suggested_date_reply}', '${emp_name}', ${is_reply}, '${status}', ${is_current}, 
+                            ${is_seen}, ${is_acknowledged}, ${is_public})`;
+                    connection.query(query, function (err, results, fields) {
+                        if (err) {
+                            console.log("400", err.sqlMessage);
+                            return res.json({status: 400, errors: err.sqlMessage});
+                        }
+                        console.log("201");
+                        return res.json({status: 201});
+                    })
+                })
+
+            } else {
+                var statusUpdateQuery = `UPDATE consumer_complains_table SET complain_status = 'INITIATED' WHERE complain_id like '${complain_id}'`;
+                connection.query(statusUpdateQuery, function (err, results, fields) {
+                    if (err) {
+                        console.log("400", err.sqlMessage);
+                        return res.json({status: 400, errors: err.sqlMessage});
+                    }
+
+
+                    var queryUpdate = `UPDATE complains_reporting_body SET is_current = 0 WHERE complains_reporting_id = ?`;
+                    connection.query(queryUpdate, [reporting_id], function (err, results, fields) {
+                        if (err) {
+                            console.log("400: reporting_id 2", err.sqlMessage);
+                            return res.json({status: 400, errors: err.sqlMessage});
+                        }
+                        const nquery = `INSERT INTO complains_reporting_body(complains_reporting_id, complain_id, forwards_to, forwards_by, 
+                     forwards_message, suggested_date_reply, employee_name, is_reply, status, is_current, is_seen, is_acknowledged, is_public)
+                            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) `;
+                        const nValues = [complains_reporting_id, complain_id, forwards_to, forwards_by, forwards_message,
+                            suggested_date_reply, emp_name, is_reply, status, is_current, is_seen, is_acknowledged, is_public];
+                        connection.query(nquery, nValues, function (err, results, fields) {
+                            if (err) {
+                                console.log(" pk 400", err.sqlMessage);
+                                return res.json({status: 400, errors: err.sqlMessage});
+                            }
+                            console.log("201");
+                            return res.json({status: 201});
+                        })
+                    });
+                });
+
+
+            }
+        })
+
+    }
+
+};
+
+
+exports.reporting_complains = async (req, res) => {
+
+    const Values = [
+        req.body.complains_reporting_id,
+        req.body.complain_id,
+        req.body.forwards_to,
+        req.body.forwards_by,
+        req.body.forwards_date,
+        req.body.forwards_message,
+        req.body.suggested_date_reply,
+        req.body.emp_name,
+        req.body.is_reply,
+        req.body.status,
+        req.body.is_public,
+        1 // is_current
+    ];
+    const complain_id = req.body.complain_id;
+
+    console.log(Values);
+    const update_querySting = `UPDATE complains_reporting_body SET is_current = 0 where complain_id = ?;`;
+    connection.query(update_querySting, [complain_id], (err, rows, fields) => {
+        console.log("inside reporting_complains update");
+        if (err) {
+            console.log("500", err.sqlMessage);
+            return res.json({status: 500, err: err.sqlMessage});
+        }
+
+        const querySting =
+            `insert into complains_reporting_body(complains_reporting_id, complain_id, forwards_to,
+        forwards_by, forwards_date, forwards_message, suggested_date_reply, employee_name, is_reply, status, is_public, is_current)
+         values (?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+        connection.query(querySting, Values, (err, rows, fields) => {
+            console.log("inside reporting_complains");
+            if (err) {
+                console.log("400", err.sqlMessage);
+                return res.json({status: 400, errors: err.sqlMessage});
+            }
+            console.log("201");
+            return res.json({status: 201});
+        });
+    });
+};
 exports.create_consumer = async (req, res) => {
 
     console.log("inside create_consumer");
@@ -114,7 +266,7 @@ exports.employee_designation_details = async (req, res) => {
         "       emp_des.appointment_date   AS emp_des_appointment_date,\n" +
         "       emp_des.order_letter_photo AS emp_des_order_letter_photo,\n" +
         "       emp_des.is_active          AS emp_des_is_active,\n" +
-        "       des.des_title,\n" +
+        "       des.des_title, des.des_id, \n" +
         "       des.des_scale,\n" +
         "       depart.department_name,\n" +
         "       depart.department_description,\n" +
@@ -516,6 +668,42 @@ exports.division_list = async (req, res) => {
         res.json(rows)
     });
 };
+exports.sub_division_list = async (req, res) => {
+    console.log("responding to sub_division_list route");
+    console.log(req.params.id);
+
+    const querySting = "SELECT * FROM sub_division where div_id = ?;";
+
+    connection.query(querySting, [req.params.id], (err, rows, fields) => {
+        console.log(" we are in sub_division_list");
+        if (err) {
+            res.sendStatus(500);
+            return
+        }
+
+        console.log(rows);
+        res.json(rows)
+
+    });
+};
+exports.tubwells_list = async (req, res) => {
+    console.log("responding to tubwells_list route");
+    console.log(req.params.id);
+
+    const querySting = "SELECT * FROM tubewells where sub_div_id = ?;";
+
+    connection.query(querySting, [req.params.id], (err, rows, fields) => {
+        console.log(" we are in tubwells_list");
+        if (err) {
+            res.sendStatus(500);
+            return
+        }
+
+        console.log(rows);
+        res.json(rows)
+
+    });
+};
 exports.designation_list = async (req, res) => {
     console.log("responding to department_list route");
 
@@ -639,7 +827,15 @@ exports.complain_list = async (req, res) => {
     console.log("responding to complain_list route");
 
 
-    const querySting = "SELECT * FROM consumer_complains_table";
+    const querySting = `SELECT cct.* , urt.*, crb.complains_reporting_id, forwards_to, 
+                        forwards_by, forwards_date, forwards_message, suggested_date_reply, employee_name,
+                         is_reply, status, is_current, is_acknowledged, is_seen, is_public
+                         
+                        FROM consumer_complains_table as cct 
+                        left join user_registration_table urt on cct.account_number = urt.account_number 
+                        left join complains_reporting_body crb 
+                        on cct.complain_id = crb.complain_id AND is_current = 1
+                        order by crb.forwards_date DESC,  created_us DESC `;
 
     connection.query(querySting, (err, rows, fields) => {
         console.log("inside complain_list");
@@ -655,8 +851,16 @@ exports.complain_list = async (req, res) => {
 exports.consumer_complain_list = async (req, res) => {
     console.log("responding to complain_list route");
 
-
-    const querySting = "SELECT * FROM consumer_complains_table where account_number = ?";
+    const querySting = `SELECT cct.* , urt.*, crb.complains_reporting_id, forwards_to, 
+                        forwards_by, forwards_date, forwards_message, suggested_date_reply, employee_name,
+                         is_reply, status, is_current, is_acknowledged, is_seen, is_public
+                         
+                        FROM consumer_complains_table as cct 
+                        left join user_registration_table urt on cct.account_number = urt.account_number 
+                        left join complains_reporting_body crb 
+                        on cct.complain_id = crb.complain_id AND is_current = 1
+                        where cct.account_number = ?
+                        order by created_us DESC `;
 
     connection.query(querySting, [req.params.id], (err, rows, fields) => {
         console.log("inside complain_list");
@@ -673,7 +877,15 @@ exports.single_complain = async (req, res) => {
     console.log("inside single_complain", req.params.id);
 
 
-    const querySting = "select * from consumer_complains_table as comp left join consumer_attachment ca on comp.complain_id = ca.complain_id where comp.complain_id = ?;";
+    const querySting =
+        `select * from consumer_complains_table as comp 
+        left join user_registration_table on comp.account_number = user_registration_table.account_number
+        left join consumer_attachment ca on comp.complain_id = ca.complain_id
+        left join complains_reporting_body crb on comp.complain_id = crb.complain_id
+        left join employees on crb.forwards_to = employees.employee_id
+        left join reporting_attachments ra on crb.complains_reporting_id = ra.complains_reporting_id
+        where comp.complain_id = ?
+        order by  forwards_date , is_current DESC`;
 
     connection.query(querySting, [req.params.id], (err, rows, fields) => {
         console.log("inside complain_list");
@@ -754,39 +966,57 @@ exports.add_emoployee_training = async (req, res) => {
 
 
 };
-exports.add_emoployee_transfer = async (req, res) => {
-    console.log("inside add_emoployee_transfer");
+
+function convert(str) {
+    var date = new Date(str),
+        mnth = ("0" + (date.getMonth() + 1)).slice(-2),
+        day = ("0" + date.getDate()).slice(-2);
+    return [date.getFullYear(), mnth, day].join("-");
+}
+
+
+exports.transfer_emoployee = async (req, res) => {
+    console.log("inside transfer_emoployee");
     console.log(req.body);
 
-    const employeeValues = [
+
+    const values = [
         req.body.employee_id,
-        req.body.Transfer_Date,
-        req.body.Joining_Date,
-        req.body.Description,
-        req.body.Division,
-        req.body.Sub_Division,
-        req.body.Tubewell,
+        req.body.tubewell_id,
+        req.body.description,
+        convert(req.body.transfer_Date),
+        convert(req.body.joining_Date),
+        req.file.path,
     ];
-    console.log(employeeValues);
+    console.log(values);
 
-    res.json({status: 200})
-    console.log(employeeValues);
+    // res.json({status: 200})
+    //console.log(employeeValues);
 
-    /*
-        console.log(employeeValues);
-        const querySting = "insert into employees_trainings(employee_id, train_name, train_description, train_start_date,train_end_date, train_location_name ) values (?, ?, ?, ?, ?, ?);";
-        connection.query(querySting, employeeValues, (err, rows, fields) => {
-            console.log("inside create_employee_designation");
+    const update_querySting = `UPDATE transfers SET is_active='0' where employee_id = ?;`;
+    const querySting = "insert into transfers(employee_id, tubewell_id, description, transfer_date, joining_date, order_letter_photo)" +
+        " values (?, ?, ?, ?, ?, ?);";
+
+    connection.query(update_querySting, [req.body.employee_id], (err, rows, fields) => {
+        console.log("inside create_employee_designation");
+        if (err) {
+            console.log("500", err.sqlMessage);
+            res.json({status: 500, err: err.sqlMessage});
+            return
+        }
+
+
+        connection.query(querySting, values, (err, rows, fields) => {
+            console.log("inside transfer_emoployee");
             if (err) {
                 console.log("500", err.sqlMessage);
                 res.json({status: 500, err: err.sqlMessage});
                 return
             }
 
-            const eemployeesDesignations_id = rows.insertId;
-            res.json({status: 200, eemployeesDesignations_id})
+            res.json({status: 200})
         });
-    */
 
+    });
 
 };

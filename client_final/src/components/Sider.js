@@ -8,7 +8,7 @@ const {Header, Content, Footer, Sider} = Layout;
 
 
 const {SubMenu} = Menu;
-
+const sliderStyle ={backgroundColor:"#3e474f"};
 export default class MySider extends React.Component {
     // submenu keys of first level
     rootSubmenuKeys = ['sub1', 'sub2', 'sub4'];
@@ -44,10 +44,10 @@ export default class MySider extends React.Component {
                 </Menu.Item>
             </Menu>
             :
-            <Menu theme="dark" mode="vertical" defaultSelectedKeys={['100']}>
+            <Menu theme="dark" style={sliderStyle} mode="vertical" defaultSelectedKeys={['100']}>
 
-                <Menu.Item key="0"><NavLink activeStyle={{color: 'white'}} to="/"
-                                            className="nav-text"> Home </NavLink></Menu.Item>
+                <Menu.Item key="0">
+                    <NavLink activeStyle={{color: 'white'}} to="/" className="nav-text"> Home </NavLink></Menu.Item>
 
                 <Divider/>
                 <Menu.Item key="1">
@@ -85,6 +85,7 @@ export default class MySider extends React.Component {
                 {authUser ? (
                     <>
                         <Sider
+                            style={sliderStyle}
                             breakpoint="lg"
                             collapsedWidth="0"
                             onBreakpoint={broken => {
