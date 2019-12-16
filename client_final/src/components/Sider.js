@@ -73,8 +73,10 @@ export default class MySider extends React.Component {
                         Division</NavLink>
                 </Menu.Item>
                 <Menu.Item key="8">
-                    <NavLink activeStyle={{color: 'white'}} to="/complain_dashboard">View
-                        Complaints</NavLink>
+                    <NavLink activeStyle={{color: 'white'}} to="/complain_dashboard">View Complaints</NavLink>
+                </Menu.Item>
+                <Menu.Item key="9">
+                    <NavLink activeStyle={{color: 'white'}} to="/complain_reports">Complaint Reports</NavLink>
                 </Menu.Item>
                 <Divider/>
             </Menu>;

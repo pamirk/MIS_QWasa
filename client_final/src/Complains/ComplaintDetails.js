@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Redirect} from "react-router-dom";
 import {Container} from "reactstrap";
-import {Avatar, Button, Card, Divider, Icon, Layout, message, Modal, Select, Switch} from "antd";
+import {Avatar, Button, Card, Divider, Icon, Layout, message, Modal, Select, Switch, Upload} from "antd";
 import UserRemoteSelect from "./UserRemoteSelect";
 import TextArea from "antd/es/input/TextArea";
 import moment from "moment";
@@ -27,6 +27,9 @@ export default class ComplainDetails extends Component {
         forwards_message: '',
         status: '',
 
+        fileList: [],
+        uploading: false,
+
     };
 
     onStatusChange = (value) => {
@@ -42,8 +45,9 @@ export default class ComplainDetails extends Component {
         const {forwards_message, status, complainDetails, employeeAgent, privateSwitchValue} = this.state;
         const is_public = (privateSwitchValue) ? 1 : 0;
         const forwards_to = (employeeAgent && employeeAgent.employee_id) ? employeeAgent.employee_id : complainDetails.forwards_to;
+        const reporting_id = uuidv4();
         const fd = new FormData();
-        fd.append('complains_reporting_id', uuidv4());
+        fd.append('complains_reporting_id', reporting_id);
         fd.append('reporting_id', complainDetails.complain_id);
         fd.append('complain_id', this.id);
         fd.append('forwards_to', forwards_to);
@@ -62,45 +66,10 @@ export default class ComplainDetails extends Component {
                 console.log("hi htere", response.data.status);
                 if (response.data.status === 201) {
                     message.success("Register Successfully");
-                    this.getConsumer_complain_list()
+                    this.handleUpload(reporting_id);
 
                 } else if (response.data.status === 400) {
                     Util.showErrorMessage("error");
-                }
-            });
-    };
-
-    //unused func
-    wonsubmit = () => {
-        const {context} = this.props;
-        const authUser = context.authenticatedUser;
-
-        const {forwards_message, status, employeeAgent} = this.state;
-        const fd = new FormData();
-        fd.append('complains_reporting_id', uuidv4());
-        fd.append('reporting_id', this.state.complainDetails.complain_id);
-        fd.append('complain_id', this.id);
-        fd.append('forwards_to', employeeAgent.employee_id);
-        fd.append('forwards_by', authUser.employee_id);
-        fd.append('forwards_date', moment().format('YYYY-MM-DD HH:mm:ss'));
-        fd.append('suggested_date_reply', moment().format('YYYY-MM-DD HH:mm:ss'));
-        fd.append('forwards_message', forwards_message);
-        fd.append('emp_name', authUser.full_name);
-        fd.append('is_reply', 1);
-        fd.append('status', status);
-        fd.append('is_public', 1);
-
-
-        axios.post('http://localhost:3003/api/wreporting_complains', fd)
-            .then(response => {
-                console.log("hi htere", response.data.status);
-                if (response.data.status === 201) {
-                    message.success("Register Successfully");
-                    this.getConsumer_complain_list()
-
-                } else if (response.data.status === 400) {
-                    Util.showErrorMessage("error");
-
                 }
             });
     };
@@ -111,11 +80,28 @@ export default class ComplainDetails extends Component {
     };
 
     componentDidMount() {
-        this.getConsumer_complain_list()
+        this.getComplain();
     }
 
+    getComplain = () => {
+        fetch(`http://localhost:3003/api/complain/${this.id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(data => data.json())
+            .then(data => {
+                this.getConsumer_complain_list();
+                this.setState({
+                    complain_data: data.row,
+                }, () => {
+                });
+            })
+    };
+
     getEmployee = (id) => {
-        fetch(`http://localhost:3003/api/employee/${id}`, {
+        fetch(`http://localhost:3003/api/show_one_employee/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -124,18 +110,15 @@ export default class ComplainDetails extends Component {
             .then(data => data.json())
             .then(data => {
                 this.setState({
-                        employeeAgent: data[0],
-                    },
-                    function () {
-                        console.log("getEmployee called: ", data[0])
-
-                    });
+                    employeeAgent: data[0],
+                }, () => {
+                    console.log("getEmployee called: ", data[0])
+                });
 
             })
     };
-
     getConsumer_complain_list = () => {
-        fetch(`http://localhost:3003/api/single_complain/${this.id}`, {
+        fetch(`http://localhost:3003/api/sc/${this.id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -147,12 +130,11 @@ export default class ComplainDetails extends Component {
                     data: data.rows,
                     complainDetails: data.rows[data.rows.length - 1],
                     loading: false
-                }, function () {
-                    console.log(this.state.complainDetails.is_current, this.state.complainDetails.status, "getConsumer_complain_list Called", this.state.complainDetails.complain_id)
+                }, () => {
+                    console.log("Complain_data: ", this.state.data)
                 });
             })
     };
-
     showpromoteModal = () => {
         this.setState({
             visible_showpromoteModal: true,
@@ -171,7 +153,6 @@ export default class ComplainDetails extends Component {
             visible_showpromoteModal: false,
         });
     };
-
     confirmBtnClicked = (value) => {
         /*this.setState({
             selectedEmployeeId: value,
@@ -179,7 +160,6 @@ export default class ComplainDetails extends Component {
         console.log("confirmBtnClicked", value);
         this.getEmployee(value[0].key)
     };
-
     handleConfirm = () => {
         if (this.state.employeeAgent) {
             console.log("Here is value", this.state.employeeAgent)
@@ -200,43 +180,129 @@ export default class ComplainDetails extends Component {
                 [name]: value
             };
         });
-    }
+    };
+
+    handleUpload = (id) => {
+        const {fileList} = this.state;
+        if (fileList.length === 0) {
+            return
+        }
+        this.setState({
+            uploading: true,
+        });
+
+        fileList.forEach(file => {
+            const formData = new FormData();
+            formData.append('attachment_id', uuidv4());
+            formData.append('reporting_id', id);
+            formData.append('image', file);
+            formData.append('attachment_file_type', file.type);
+
+
+            axios.post('http://localhost:3003/api/reporting_attachment', formData)
+                .then(d => {
+                    const data = d.data;
+                    console.log(data);
+
+                    if (data.err) {
+                        this.showErrorMessage(data.err, 5);
+                    } else if (data.status === 200) {
+                        Util.showSuccessMessage('Successfully sent a file!', 1);
+                        this.getConsumer_complain_list()
+                    }
+                })
+                .catch(reason => {
+                    this.setState({
+                        uploading: false,
+                    });
+                    message.error('upload failed.' + reason.toString());
+                })
+                .finally(() => {
+                    this.setState({
+                        fileList: [],
+                        uploading: false,
+                    });
+                    message.success('upload successfully.');
+                });
+        });
+    };
 
     render() {
         const {context} = this.props;
-        const {complainDetails, forwards_message, status} = this.state;
+        const {complainDetails, forwards_message, status, uploading, fileList, complain_data} = this.state;
+        const props = {
+            onRemove: file => {
+                this.setState(state => {
+                    const index = state.fileList.indexOf(file);
+                    const newFileList = state.fileList.slice();
+                    newFileList.splice(index, 1);
+                    return {
+                        fileList: newFileList,
+                    };
+                });
+            },
+            beforeUpload: file => {
+                this.setState(state => ({
+                    fileList: [...state.fileList, file],
+                }));
+                return false;
+            },
+            fileList,
+        };
+
         const authUser = context.authenticatedUser;
         const assignValue = (this.state.selectedEmployeeId) ? this.state.selectedEmployeeId[0].label : "None";
         if (!authUser) {
             return <Redirect to='/signin'/>
         }
-
-        /*new initailed
-        * unresolvedt this.state.complainDetails
-        * resolved*/
-        let createdDate = (complainDetails && complainDetails.created_us) ? moment(complainDetails.created_us).fromNow() : "-";
+        let createdDate = (complain_data && complain_data.created_us) ? moment(complain_data.created_us).fromNow() : "-";
         let lastMessageDate = (complainDetails && complainDetails.forwards_date) ? moment(complainDetails.forwards_date).fromNow() : "-";
         let complainStatus = (complainDetails && complainDetails.status) ? complainDetails.status : "-";
         let isAssigned = complainDetails && complainDetails.employee_id;
-        let cards = (!this.state.loading) && (this.state.data[0].forwards_date) && this.state.data.map(v => (
-            <ChatCard user_name={v.employee_name} created_at={v.forwards_date} complain_body={v.forwards_message}/>
-        ));
+        let cards = (!this.state.loading) && (this.state.data[0].forwards_date) && this.state.data.map(v => {
+            return ((authUser.user_cnic) && v.is_public === 0)
+                ? ""
+                : <ChatCard
+                    isUser={(!authUser.user_cnic)}
+                    forwards_to_name={v.full_name}
+                    forwards_by_name={v.employee_name}
+                    suggested_date_reply={v.suggested_date_reply}
+                    status={v.status}
+                    is_public={v.is_public}
+                    user_name={v.employee_name}
+                    created_at={v.forwards_date}
+                    complain_body={v.forwards_message}
+                    attachments={v.attachments}/>;
+
+
+        });
+        const isConsumerStyle = "p-5 " + (authUser.user_cnic ? " " : " demo-infinite-container");
         return (
+
             <>
                 {(!this.state.loading) &&
                 <>
                     <Layout>
                         <Content>
-                            <Container className="p-5 demo-infinite-container">
-                                <ChatCard user_name={complainDetails.user_name} created_at={complainDetails.created_us}
-                                          complain_body={complainDetails.complain_body}/>
+                            <Container className={isConsumerStyle}>
+                                <ChatCard
+                                    complaincard={true}
+                                    isUser={(!authUser.user_cnic)}
+                                    user_name={complain_data.user_name}
+                                    created_at={complain_data.created_us}
+                                    complain_body={complain_data.complain_body}
+                                    attachments={complain_data.attachments}
+
+                                />
                                 {cards}
                             </Container>
-
+                            {(!authUser.user_cnic) &&
                             <div className='css-1panmox'>
                                 <div className='css-fqbvdm'>
                                     <div className='css-1zftos'>
+
                                         <div className='css-8l8s0b'>
+
                                             <TextArea
                                                 id="forwards_message"
                                                 name="forwards_message"
@@ -245,16 +311,35 @@ export default class ComplainDetails extends Component {
                                                 autoSize={{minRows: 3, maxRows: 5}}
                                                 className='textAreaStyle'
                                                 placeholder="Type a message…"/>
-                                        </div>
 
+                                            <div style={{paddingTop: 10}}>
+                                                <Upload {...props}>
+                                                    <Button>
+                                                        <Icon type="upload"/> Select File
+                                                    </Button>
+                                                </Upload>
+                                                {/* <Button
+                                                    type="primary"
+                                                    onClick={this.handleUpload}
+                                                    disabled={fileList.length === 0}
+                                                    loading={uploading}
+                                                    style={{marginTop: 16}}>
+                                                    {uploading ? 'Uploading' : 'Start Upload'}
+                                                     </Button>*/}
+                                            </div>
+
+                                            <Divider/>
+
+                                        </div>
 
                                         <div className='css-o6jqtj'>
                                             <div className='css-gg4vpm'>
                                                 <div className='css-1utwezw'>
+                                                    Private
+                                                    <Divider type='vertical'/>
                                                     <Switch defaultChecked title='Private'
-                                                            onChange={this.onPrivateSwitchChange}/>{'  '} Private
-                                                    {/*<Divider type='vertical'/>*/}
-                                                    {/*<Icon type="upload"/>*/}
+                                                            onChange={this.onPrivateSwitchChange}/>
+
 
                                                 </div>
                                                 <div className='css-u4p24i'>
@@ -289,6 +374,7 @@ export default class ComplainDetails extends Component {
                                     </div>
                                 </div>
                             </div>
+                            }
                         </Content>
                         <Sider width={320} style={{height: '100hv', backgroundColor: "#f3f7f9", color: 'white'}}>
                             <Card title='Complaint Info' bordered={false} style={{borderRadius: 8, marginTop: 16}}>

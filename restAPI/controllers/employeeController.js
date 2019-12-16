@@ -145,7 +145,7 @@ exports.reporting_complains = async (req, res) => {
         }
 
         const querySting =
-            `insert into complains_reporting_body(complains_reporting_id, complain_id, forwards_to,
+                `insert into complains_reporting_body(complains_reporting_id, complain_id, forwards_to,
         forwards_by, forwards_date, forwards_message, suggested_date_reply, employee_name, is_reply, status, is_public, is_current)
          values (?,?,?,?,?,?,?,?,?,?,?,?)`;
 
@@ -235,6 +235,33 @@ exports.complain_register = async (req, res) => {
 };
 
 
+exports.reporting_attachment = async (req, res) => {
+    console.log(req.body);
+    const Values = [
+        req.body.attachment_id,
+        req.body.reporting_id,
+        req.file.path,
+        req.body.attachment_file_type
+    ];
+
+    console.log(Values);
+    const querySting =
+            `insert into reporting_attachments(reporting_attachments_id, complains_reporting_id, reporting_attachment_name
+        , reporting_attachment_file_type) 
+        values (?, ?, ?, ?);`;
+
+    connection.query(querySting, Values, (err, rows, fields) => {
+        console.log("inside reporting_attachment");
+        if (err) {
+            console.log("500");
+            res.json({status: 500, err: err.sqlMessage});
+            return
+        }
+        console.log("200");
+        res.json({status: 200})
+    });
+};
+
 exports.postConsumerAttachment = async (req, res) => {
     console.log(req.body);
     const Values = [
@@ -245,8 +272,8 @@ exports.postConsumerAttachment = async (req, res) => {
     ];
 
     console.log(Values);
-    const querySting = "insert into consumer_attachment(attachment_id, complain_id, attachment_name, attachment_file_type)" +
-        " values (?, ?, ?, ?);";
+    const querySting = `insert into consumer_attachment(attachment_id, complain_id, attachment_name, attachment_file_type) 
+                        values (?, ?, ?, ?);`;
     connection.query(querySting, Values, (err, rows, fields) => {
         console.log("inside complain_register_Attachment");
         if (err) {
@@ -368,6 +395,7 @@ exports.create = async (req, res) => {
 
 
 };
+
 exports.set_employee_status = async (req, res) => {
     console.log(req.body.status, req.body.id);
     let status = req.body.status === 'true' ? 1 : 0;
@@ -411,6 +439,7 @@ exports.set_employee_status = async (req, res) => {
 
 
 };
+
 exports.set_employee_password = async (req, res) => {
 
     console.log(req.body.password, req.body.id);
@@ -444,6 +473,7 @@ exports.set_employee_password = async (req, res) => {
     });
 
 }
+
 exports.employee_create_address = async (req, res) => {
     const addressvalues = [
         req.body.current_address,
@@ -848,6 +878,33 @@ exports.complain_list = async (req, res) => {
         res.json({status: 200, rows});
     });
 };
+
+exports.employee_complain_list = async (req, res) => {
+    console.log("responding to employee_complain_list route");
+
+
+    const querySting = `SELECT cct.* , urt.*, crb.complains_reporting_id, forwards_to, 
+                        forwards_by, forwards_date, forwards_message, suggested_date_reply, employee_name,
+                         is_reply, status, is_current, is_acknowledged, is_seen, is_public
+                         
+                        FROM consumer_complains_table as cct 
+                        left join user_registration_table urt on cct.account_number = urt.account_number 
+                        left join complains_reporting_body crb 
+                        on cct.complain_id = crb.complain_id AND is_current = 1
+                        where forwards_to = ?
+                        order by crb.forwards_date DESC,  created_us DESC `;
+
+    connection.query(querySting, [req.params.id], (err, rows, fields) => {
+        console.log("inside complain_list");
+        if (err) {
+            res.json({status: 500, err: err});
+            return
+        }
+
+        console.log(rows);
+        res.json({status: 200, rows});
+    });
+};
 exports.consumer_complain_list = async (req, res) => {
     console.log("responding to complain_list route");
 
@@ -878,7 +935,7 @@ exports.single_complain = async (req, res) => {
 
 
     const querySting =
-        `select * from consumer_complains_table as comp 
+            `select * from consumer_complains_table as comp 
         left join user_registration_table on comp.account_number = user_registration_table.account_number
         left join consumer_attachment ca on comp.complain_id = ca.complain_id
         left join complains_reporting_body crb on comp.complain_id = crb.complain_id
@@ -898,6 +955,51 @@ exports.single_complain = async (req, res) => {
         res.json({status: 200, rows});
     });
 };
+exports.getcomplain = async (req, res) => {
+    console.log("inside single_complain", req.params.id);
+
+
+    const querySting =
+            `select * from consumer_complains_table as comp 
+        left join user_registration_table on comp.account_number = user_registration_table.account_number
+        left join vw_consumer_attachment ca on comp.complain_id = ca.complain_id
+        where comp.complain_id = ?
+        `;
+
+    connection.query(querySting, [req.params.id], (err, rows, fields) => {
+        console.log("inside complain_list");
+        if (err) {
+            return res.json({status: 500, err: err});
+        }
+
+        console.log(rows[0]);
+        res.json({status: 200, row: rows[0]});
+    });
+};
+
+exports.sc = async (req, res) => {
+    console.log("inside sc", req.params.id);
+
+    const query = `select * from vw_responses r 
+                    left join employees on r.forwards_to = employees.employee_id
+                    where complain_id = ?
+                    order by  forwards_date , is_current DESC`;
+
+    connection.query(query, [req.params.id], (err, rows, fields) => {
+        console.log("inside complain_list");
+        if (err) {
+            console.log(err);
+            res.json({status: 500, err: err});
+            return
+        }
+
+        console.log(rows);
+
+
+        res.json({status: 200, rows});
+    });
+};
+
 exports.promote_emoployee = async (req, res) => {
     console.log("inside promote_emoployee");
     console.log(req.body);

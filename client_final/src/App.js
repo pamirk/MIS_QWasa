@@ -72,6 +72,7 @@ export default () => (
                     <PrivateRoute path="/complain_register" component={CreateComplainWithContext}/>
                     <PrivateRoute path="/complain_dashboard" component={ComplainDashboardWithContext}/>
                     <PrivateRoute path="/complaint/:id" component={ComplaintDetailsWithContext}/>
+                    <PrivateRoute path="/complain_reports" component={ComplaintDetailsWithContext}/>
 
 
                     <PrivateRoute path="/authenticated" component={AuthWithContext}/>

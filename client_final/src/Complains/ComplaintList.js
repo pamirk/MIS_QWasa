@@ -146,7 +146,7 @@ export default class ComplaintList extends React.Component {
         ];
         return (
             <>
-                <Table loading={this.state.loading} columns={columns} dataSource={this.state.data}/>
+                <Table style={{backgroundColor: "white"}} loading={this.state.loading} columns={columns} dataSource={this.state.data}/>
 
                 {/*   {(this.state.loading) ? "" :
                 }*/}

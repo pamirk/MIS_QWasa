@@ -62,11 +62,16 @@ router.post("/employee_address_update", upload.single('image'), employeeControll
 
 router.get("/complain_list", employeeController.complain_list);
 router.get("/consumer_complain_list/:id", employeeController.consumer_complain_list);
+router.get("/employee_complain_list/:id", employeeController.employee_complain_list);
 router.get("/single_complain/:id", employeeController.single_complain);
+router.get("/complain/:id", employeeController.getcomplain);
+router.get("/sc/:id", employeeController.sc);
 router.post("/complain_register", upload.single('image'), employeeController.complain_register);
 
 router.post("/reporting_complains", upload.none(), employeeController.reporting_complains);
 router.post("/wreporting_complains", upload.none(), employeeController.wreporting_complains);
+
+router.post("/reporting_attachment", upload.single('image'), employeeController.reporting_attachment);
 
 router.post("/postConsumerAttachment", upload.single('image'), employeeController.postConsumerAttachment);
 //router.post("/one_complain_register_Attachment", upload.single('image'), employeeController.one_complain_register_Attachment);

@@ -25,10 +25,10 @@ export default class UserRemoteSelect extends React.Component {
         fetch('http://localhost:3003/api/employee_list')
             .then(response => response.json())
             .then(body => {
-                /*  if (fetchId !== this.lastFetchId) {
-                      // for fetch callback order
-                      return;
-                  }*/
+                if (fetchId !== this.lastFetchId) {
+                    // for fetch callback order
+                    return;
+                }
                 console.log(body);
 
                 const data = body.map(user => ({

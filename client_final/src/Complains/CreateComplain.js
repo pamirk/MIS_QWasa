@@ -46,8 +46,8 @@ class CreateComplain extends Component {
             fd.append('complain_body', this.complain_body.value);
             fd.append('complain_status', "Its Very first step");
             console.log(complain_id);
-            console.log(this.account_number.value)
-            console.log(this.complain_body.value)
+            console.log(this.account_number.value);
+            console.log(this.complain_body.value);
             axios.post('http://localhost:3003/api/complain_register', fd)
                 .then(d => {
                     const data = d.data;

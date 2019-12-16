@@ -31,14 +31,11 @@ router.post('/getConsumer', (req, res) => {
         cnic: req.body.cnic.trim(),
         password: req.body.password.trim(),
     };
-    const querySting = `SELECT *
-                        from user_registration_table
-                        where user_cnic = ?;`;
+    const querySting = `SELECT * from user_registration_table where user_cnic = ?;`;
     connection.query(querySting, [credentials.cnic], (err, rows, fields) => {
-        if (err) {
+        if (err || rows[0] === undefined) {
             console.log("database error could't find consumer:  ");
-            res.status(401).json({message: 'message with cnic not found'});
-
+            return res.status(401).json({message: 'message with cnic not found'});
         }
 
         const consumer = rows[0];
@@ -78,9 +75,11 @@ const authenticateUser = (req, res, next) => {
                         from employees
                         where email = ?;`;
     connection.query(querySting, [email], (err, rows, fields) => {
-        if (err) {
+        if (err || rows[0] === undefined) {
             console.log("database error findEmployee:  ");
             message = "message with email not found";
+            return res.status(401).json({message: 'message with email not found'});
+
         }
         const employee = rows[0];
         console.log("success findEmployee:  ", employee.employee_id);
@@ -92,6 +91,7 @@ const authenticateUser = (req, res, next) => {
         connection.query(querySting, [employee.employee_id], (err, rows, fields) => {
             if (err) {
                 console.log("database error findUser:  ");
+                return res.status(401).json({message: 'database error findUser'});
             }
             console.log("2 success findUser:  ", rows);
             const employee_login = rows[0];
