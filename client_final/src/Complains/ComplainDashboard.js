@@ -5,10 +5,11 @@ import './complaint.css'
 import {Card, Col, Row, Statistic} from "antd";
 import {Container} from "reactstrap";
 import Icon from "antd/es/icon";
+import Statuses from '../status'
 
 export default class ComplainDashboard extends Component {
     /*
-    new,
+    registered,
     initiate or pending
     inprocess or pending
     resolve
@@ -26,6 +27,10 @@ export default class ComplainDashboard extends Component {
 
         consumer_complaints: null,
 
+        s_total: 0,
+        s_new: 0,
+        s_pending: 0,
+        s_resolved: 0,
     };
 
     componentDidMount() {
@@ -56,7 +61,7 @@ export default class ComplainDashboard extends Component {
                 this.setState({
                     consumer_complaints: data.rows,
                     loading: false
-                });
+                }, () => this.calculateStatuses(data.rows));
                 console.log("Consumer complaints", data.rows)
             })
     };
@@ -71,10 +76,32 @@ export default class ComplainDashboard extends Component {
             .then(data => {
                 this.setState({
                     consumer_complaints: data.rows,
-                    loading: false
-                });
+                    loading: false,
+                }, () => this.calculateStatuses(data.rows));
                 console.log("Consumer complaints", data.rows)
             })
+    };
+    calculateStatuses = (complaints) => {
+        let s_total = 0, s_new = 0 , s_pending = 0 , s_resolved = 0;
+        let c;
+        s_total = complaints.length;
+        for (let i = 0; i < complaints.length; i++) {
+            c = complaints[i];
+            if (c.complain_status === Statuses.initiated || c.complain_status === Statuses.inProcess) {
+                s_pending += 1;
+            } else if (c.complain_status === Statuses.registered) {
+                s_new += 1
+            } else if (c.complain_status === Statuses.resolved) {
+                s_resolved += 1
+            }
+        }
+
+        this.setState({
+            s_total: s_total,
+            s_new: s_new,
+            s_pending: s_pending,
+            s_resolved: s_resolved,
+        })
     };
     getConsumer_complain_list = () => {
         fetch(`http://localhost:3003/api/consumer_complain_list/${this.props.context.authenticatedUser.account_number}`, {
@@ -88,7 +115,7 @@ export default class ComplainDashboard extends Component {
                 this.setState({
                     consumer_complaints: data.rows,
                     loading: false
-                });
+                }, () => this.calculateStatuses(data.rows));
                 console.log("Consumer complaints", data.rows)
             })
     };
@@ -104,65 +131,68 @@ export default class ComplainDashboard extends Component {
             <>
                 {(!this.state.loading) &&
                 <Container>
-                    <div style={{background: '#ECECEC', padding: '30px'}}>
+                    <div style={{fontSize:'1em', background: '#ECECEC', padding: '30px'}}>
                         <Row gutter={16}>
                             <Col span={4}>
-                                <Card bordered={false}>
+                                <Card bordered={false} style={{backgroundColor: '#D4EEE2'}}>
                                     <Statistic
                                         title="Total"
-                                        value={11}
+                                        value={this.state.s_total}
                                         precision={0}
-                                        valueStyle={{ color: '#3f8600' }}
-                                        prefix=''
-                                        suffix=''
+                                        suffix={<img width={30} src="https://img.icons8.com/color/96/000000/total-sales-1.png" />}
+
                                     />
+
                                 </Card>
                             </Col>
                             <Col span={4}>
-                                <Card bordered={false}>
+                                <Card bordered={false} style={{backgroundColor: '#F1FAF5'}}>
                                     <Statistic
                                         title="New"
-                                        value={11}
+                                        value={this.state.s_new}
                                         precision={0}
-                                        valueStyle={{ color: '#3f8600' }}
-                                        // prefix={<Icon type="arrow-up" />}
-                                        suffix=""
+                                        suffix={<img width={30} src="https://img.icons8.com/nolan/64/000000/fire-element.png" />}
                                     />
                                 </Card>
                             </Col>
                             <Col span={4}>
-                                <Card bordered={false}>
+                                <Card bordered={false} style={{backgroundColor: '#D4EEE2'}}>
                                     <Statistic
-                                        title="Pending"
-                                        value={11}
+                                        title="In Process"
+                                        value={this.state.s_pending}
                                         precision={0}
-                                        valueStyle={{ color: '#3f8600' }}
-                                        // prefix={<Icon type="arrow-up" />}
-                                        suffix=""
+                                        suffix={<img width={30} src="https://img.icons8.com/office/80/000000/road-worker.png" />}
                                     />
                                 </Card>
                             </Col>
                             <Col span={4}>
-                                <Card bordered={false}>
+                                <Card bordered={false} style={{backgroundColor: '#F1FAF5'}}>
                                     <Statistic
                                         title="Resolved"
-                                        value={11}
+                                        value={this.state.s_pending}
                                         precision={0}
-                                        valueStyle={{ color: '#3f8600' }}
                                         // prefix={<Icon type="arrow-up" />}
-                                        suffix=""
+                                        suffix={<img width={30} src="https://img.icons8.com/bubbles/50/000000/checkmark.png" />}
                                     />
                                 </Card>
                             </Col>
                             <Col span={4}>
-                                <Card bordered={false}>
+                                <Card bordered={false} style={{backgroundColor: '#D4EEE2'}}>
                                     <Statistic
                                         title="Forwarded"
-                                        value={11}
+                                        value={this.state.s_total}
                                         precision={0}
-                                        valueStyle={{ color: '#3f8600' }}
-                                        // prefix={<Icon type="arrow-up" />}
-                                        suffix=""
+                                        suffix={<img width={30} src="https://img.icons8.com/cute-clipart/64/000000/forward-message.png" />}
+                                    />
+                                </Card>
+                            </Col>
+                            <Col span={4}>
+                                <Card bordered={false} style={{backgroundColor: '#F1FAF5'}}>
+                                    <Statistic
+                                        title="Delay"
+                                        value={0}
+                                        precision={0}
+                                        suffix={<img width={30} src="https://img.icons8.com/color/96/000000/timetable.png" />}
                                     />
                                 </Card>
                             </Col>

@@ -5,9 +5,17 @@ import {render} from "react-dom";
 import {Button, Divider, Icon, Input, Table, Tag, Tooltip} from "antd";
 import Highlighter from "react-highlight-words";
 import moment from "moment";
+import Statuses from '../status'
 
 
 export default class ComplaintList extends React.Component {
+
+    statusColorsMap = {
+        'REGISTERED': "#425A70",
+        'INITIATED': "#108ee9",
+        'IN PROCESS': "#084B8A",
+        'RESOLVED': "#47B881",
+    };
 
     constructor(props) {
 
@@ -127,7 +135,7 @@ export default class ComplaintList extends React.Component {
                 render: (text, record) => (
                     <span>
                       {record.Status.map(tag => (
-                          <Tag color="blue" key={tag}>
+                          <Tag color={this.statusColorsMap[tag]} key={tag}>
                               {tag}
                           </Tag>
                       ))}

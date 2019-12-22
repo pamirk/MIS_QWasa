@@ -58,7 +58,7 @@ class CreateEmployee extends Component {
                     if (data.err) {
                         this.showErrorMessage(data.err, 5);
                     } else if (data.status === 200) {
-                        this.showErrorMessage('Successfully Register Employee', 5);
+                        message.success('Successfully Register Employee', 5);
                         this.props.history.push(`/employeeHome/${data.employee_id}`);
                     }
 
@@ -115,6 +115,14 @@ class CreateEmployee extends Component {
                                 <Input innerRef={node => this.cnic = node}
                                        type="number" name="cnic"
                                        id="cnic" placeholder="54400-0987789-1"/>
+                            </Col>
+                        </FormGroup>
+                        <FormGroup row>
+                            <Label for="cnic" sm={2}>Form Number</Label>
+                            <Col sm={10}>
+                                <Input innerRef={node => this.cnic = node}
+                                       type="number" name="cnic"
+                                       id="cnic" placeholder="Enter Employee Form number here"/>
                             </Col>
                         </FormGroup>
                         <FormGroup row>

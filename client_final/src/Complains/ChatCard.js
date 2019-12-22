@@ -1,8 +1,6 @@
 import React from 'react';
-import {Avatar, Card, Carousel, Divider, Modal, Upload} from "antd";
+import {Avatar, Card, Divider, Modal} from "antd";
 import moment from "moment";
-import {Link} from "react-router-dom";
-import {Container} from "reactstrap";
 import config from '../config'
 
 export default class ChatCard extends React.Component {
@@ -11,7 +9,7 @@ export default class ChatCard extends React.Component {
         previewVisible: false,
         previewImage: '',
     };
-    handleCancel = () => this.setState({ previewVisible: false });
+    handleCancel = () => this.setState({previewVisible: false});
     headerStyle = {
         fontSize: 14,
         lineHeight: '1.43em',
@@ -44,6 +42,7 @@ export default class ChatCard extends React.Component {
         } = this.state;
         const imagesList = (attachments) && attachments.split(',');
         return (
+
             <>
                 <Card title={user_name} headStyle={this.headerStyle} bodyStyle={this.bodyStyle}
                       extra={<span style={{color: 'white'}}>about {moment(created_at).fromNow()}</span>}
@@ -51,29 +50,36 @@ export default class ChatCard extends React.Component {
                     {complain_body}
                     <Divider/>
 
+
                     {(!complaincard) &&
-                    <ul style={{listStyle: 'inside', margin: '10px 25px'}}>
-                        <ul>{(forwards_by_name && forwards_to_name) ? `${forwards_by_name} assigned Complaint to ${forwards_to_name}` : ''}</ul>
-                        <ul>{(status) ? `${forwards_by_name} changed complaint status to ${status}` : ""}</ul>
-                    </ul>
+                    <span className="css-1trnuga">
+                            {(forwards_by_name && forwards_to_name)
+                                ? <>{forwards_by_name} assigned Complaint to <strong>{forwards_to_name}</strong></>
+                                : ''}<br/>
+                        {(status)
+                            ? <>{forwards_by_name} changed complaint status to <strong> {status} </strong></>
+                            : ""}
+                        </span>
+
+
                     }
 
 
                     {(imagesList && imagesList.length > 0) &&
-                       <>
-                           <Divider/>
+                    <>
+                        <Divider/>
 
-                           {imagesList.map(v => (
-                               <span onClick={() => this.handlePreview(config.hostUrl + `${v}`)}>
+                        {imagesList.map(v => (
+                            <span onClick={() => this.handlePreview(config.hostUrl + `${v}`)}>
                                  <Avatar src={config.hostUrl + `${v}`}
                                          className='ml-2'
                                          shape="square"
                                          size={140}
                                          icon="user"/>
                              </span>
-                           ))
-                           }
-                       </>
+                        ))
+                        }
+                    </>
                     }
 
 

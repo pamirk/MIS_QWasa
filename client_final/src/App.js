@@ -16,7 +16,8 @@ import Authenticated from './components/Authenticated';
 
 import withContext from './Context';
 import PrivateRoute from './PrivateRoute';
-import Home from "./components/Home";
+import Home from "./DashboardAnalysis/Home";
+import TESTHOME from "./DashboardAnalysis/TESTHOME.tsx";
 import CreateEmployee from "./components/CreateEmployee";
 import CreateDepartment from "./components/CreateDepartment";
 import CreateDesignation from "./components/CreateDesignation";
@@ -37,6 +38,7 @@ import ComplaintDetails from "./Complains/ComplaintDetails";
 const HeaderWithContext = withContext(Header);
 const SiderWithContext = withContext(Sider);
 const HomeWithContext = withContext(Home);
+const TESTHOMEWithContext = withContext(TESTHOME);
 const AuthWithContext = withContext(Authenticated);
 const UserSignUpWithContext = withContext(UserSignUp);
 const UserSignInWithContext = withContext(UserSignIn);
@@ -53,6 +55,7 @@ export default () => (
                 <Switch>
 
                     <Route exact path="/" component={HomeWithContext}/>
+                    <Route exact path="/test" component={TESTHOMEWithContext}/>
                     <PrivateRoute path="/create_employee" component={CreateEmployee}/>
                     <PrivateRoute path="/create_department" component={CreateDepartment}/>
                     <PrivateRoute path="/create_designation" component={CreateDesignation}/>

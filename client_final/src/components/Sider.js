@@ -1,8 +1,7 @@
 import React from 'react';
 
-import {Layout, Menu, Icon, Divider, Button} from 'antd';
-import {Link, NavLink} from "react-router-dom";
-import {CardTitle, Container} from "reactstrap";
+import {Divider, Layout, Menu} from 'antd';
+import {NavLink} from "react-router-dom";
 
 const {Header, Content, Footer, Sider} = Layout;
 
@@ -46,10 +45,7 @@ export default class MySider extends React.Component {
             :
             <Menu theme="dark" style={sliderStyle} mode="vertical" defaultSelectedKeys={['100']}>
 
-                <Menu.Item key="0">
-                    <NavLink activeStyle={{color: 'white'}} to="/" className="nav-text"> Home </NavLink></Menu.Item>
 
-                <Divider/>
                 <Menu.Item key="1">
                     <NavLink activeStyle={{color: 'white'}}
                              to="/create_employee" className="nav-text"> Register Employee </NavLink>
@@ -75,10 +71,9 @@ export default class MySider extends React.Component {
                 <Menu.Item key="8">
                     <NavLink activeStyle={{color: 'white'}} to="/complain_dashboard">View Complaints</NavLink>
                 </Menu.Item>
-                <Menu.Item key="9">
+                {/*<Menu.Item key="9">
                     <NavLink activeStyle={{color: 'white'}} to="/complain_reports">Complaint Reports</NavLink>
-                </Menu.Item>
-                <Divider/>
+                </Menu.Item>*/}
             </Menu>;
 
         return (

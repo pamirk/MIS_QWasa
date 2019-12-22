@@ -133,31 +133,39 @@ exports.reporting_complains = async (req, res) => {
         req.body.is_public,
         1 // is_current
     ];
+    const status = req.body.status;
     const complain_id = req.body.complain_id;
 
     console.log(Values);
-    const update_querySting = `UPDATE complains_reporting_body SET is_current = 0 where complain_id = ?;`;
-    connection.query(update_querySting, [complain_id], (err, rows, fields) => {
-        console.log("inside reporting_complains update");
+    const update_Complaint_status = `UPDATE consumer_complains_table SET complain_status = ? where complain_id = ?;`;
+    connection.query(update_Complaint_status, [status, complain_id], (err, rows, fields) => {
+        console.log("inside reporting_complains");
         if (err) {
-            console.log("500", err.sqlMessage);
-            return res.json({status: 500, err: err.sqlMessage});
+            console.log("400", err.sqlMessage);
+            return res.json({status: 400, errors: err.sqlMessage});
         }
-
-        const querySting =
+        const update_querySting = `UPDATE complains_reporting_body SET is_current = 0 where complain_id = ?;`;
+        connection.query(update_querySting, [complain_id], (err, rows, fields) => {
+            console.log("inside reporting_complains update");
+            if (err) {
+                console.log("500", err.sqlMessage);
+                return res.json({status: 500, err: err.sqlMessage});
+            }
+            const querySting =
                 `insert into complains_reporting_body(complains_reporting_id, complain_id, forwards_to,
         forwards_by, forwards_date, forwards_message, suggested_date_reply, employee_name, is_reply, status, is_public, is_current)
          values (?,?,?,?,?,?,?,?,?,?,?,?)`;
-
-        connection.query(querySting, Values, (err, rows, fields) => {
-            console.log("inside reporting_complains");
-            if (err) {
-                console.log("400", err.sqlMessage);
-                return res.json({status: 400, errors: err.sqlMessage});
-            }
-            console.log("201");
-            return res.json({status: 201});
+            connection.query(querySting, Values, (err, rows, fields) => {
+                console.log("inside reporting_complains");
+                if (err) {
+                    console.log("400", err.sqlMessage);
+                    return res.json({status: 400, errors: err.sqlMessage});
+                }
+                console.log("201");
+                return res.json({status: 201});
+            });
         });
+
     });
 };
 exports.create_consumer = async (req, res) => {
@@ -872,6 +880,23 @@ exports.complain_list = async (req, res) => {
         if (err) {
             res.json({status: 500, err: err});
             return
+        }
+
+        console.log(rows);
+        res.json({status: 200, rows});
+    });
+};
+exports.get_All_complains = async (req, res) => {
+    console.log("responding to complain_list route");
+
+
+    const querySting = `SELECT * FROM consumer_complains_table ORDER BY created_us DESC  `;
+
+    connection.query(querySting, (err, rows, fields) => {
+        console.log("inside get_All_complains");
+        if (err) {
+            return res.json({status: 500, err: err});
+
         }
 
         console.log(rows);

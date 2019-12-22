@@ -61,6 +61,7 @@ router.post("/employee_designation_update", upload.single('image'), employeeCont
 router.post("/employee_address_update", upload.single('image'), employeeController.employee_address_update);
 
 router.get("/complain_list", employeeController.complain_list);
+router.get("/get_All_complains", employeeController.get_All_complains);
 router.get("/consumer_complain_list/:id", employeeController.consumer_complain_list);
 router.get("/employee_complain_list/:id", employeeController.employee_complain_list);
 router.get("/single_complain/:id", employeeController.single_complain);
