@@ -1,7 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import config from "../config";
-import {Avatar, Button} from "antd";
+import {Avatar, Button, Icon, Layout} from "antd";
 import { ReactComponent as Logo } from '../logo.svg';
 
 
@@ -12,8 +12,12 @@ export default class Header extends React.PureComponent {
         return (
             <div className="header">
                 <div className="bounds">
+                    <Icon
+                        className='Slidertrigger'
+                        type={this.props.collapsed ? 'menu-unfold' : 'menu-fold'}
+                        onClick={this.props.toggle}
+                    />
 
-                    <h1 className="header--logo"><Link to="/"><Logo width={50} height={50} /></Link></h1>
                     <nav>
                         {authUser ? (
                             <React.Fragment>

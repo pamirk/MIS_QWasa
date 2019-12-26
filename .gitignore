@@ -1,4 +1,5 @@
 # Project exclude paths
 /restAPI/node_modules/
+/restAPI/build
 /client_final/node_modules/
 /client_final/build/

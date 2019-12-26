@@ -205,20 +205,20 @@ body {
     background: #fff;
 }
 
-/* line 13, ../sass/global.sass */
 .header {
-    background: #3e474f;
+    color: #111;
+    background-color: #fff;
     padding: 20px 0;
-    /*margin-bottom: 30px;*/
+    box-shadow: 0 2px 8px rgba(240, 241, 242, 65);
 }
-
 /* line 17, ../sass/global.sass */
 .header--logo {
+    display: flex;
+    justify-content: center;
     color: #fff;
     font-size: 24px;
     padding: 0 15px;
     margin: 0;
-    display: inline-block;
 }
 
 /* line 23, ../sass/global.sass */
@@ -228,12 +228,12 @@ body {
 
 /* line 25, ../sass/global.sass */
 .header--logo a:hover {
-    color: #fff;
+    color: #3cb3ff;
 }
 
 /* line 27, ../sass/global.sass */
 .header--logo .selected {
-    color: #fff;
+    color: #3cb3ff;
 }
 
 /* line 29, ../sass/global.sass */
@@ -252,7 +252,7 @@ body {
 
 /* line 37, ../sass/global.sass */
 .header nav a {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgb(0, 0, 0);
     margin-left: 20px;
 }
 
@@ -311,8 +311,8 @@ p {
 
 /* line 70, ../sass/global.sass */
 .bounds {
-    max-width: 1250px;
     margin: 0 auto;
+    margin-right: 10px;
 }
 
 /* line 74, ../sass/global.sass */
@@ -937,3 +937,20 @@ input:focus {
     max-width: 100%;
     max-height: 437px;
 }
+.Slidertrigger {
+    font-size: 18px;
+    line-height: 64px;
+    padding: 0 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.Slidertrigger:hover {
+    color: #1890ff;
+}
+
+.Sliderlogo {
+    height: 32px;
+    margin: 16px;
+}
+

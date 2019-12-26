@@ -29,27 +29,30 @@ export default class UserSignIn extends Component {
             submitButtonText="Sign In"
             elements={() => (
               <React.Fragment>
-                <div>
-                  <Radio.Group name='role' onChange={this.change} defaultValue="admin">
-                    <Radio.Button value="admin" >Admin</Radio.Button>
+                <div className='d-flex justify-content-center mb-3 '>
+                  <Radio.Group name='role' buttonStyle={"solid"} size="large" onChange={this.change} defaultValue="admin">
+                    <Radio.Button  value="admin" >Admin</Radio.Button>
                     <Radio.Button value="employee">Employee</Radio.Button>
                     <Radio.Button value="consumer">Consumer</Radio.Button>
                   </Radio.Group>
                 </div>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  value={username}
-                  onChange={this.change}
-                  placeholder="Email" />
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={password}
-                  onChange={this.change}
-                  placeholder="Password" />
+                  <div className='mb-3'>
+                   <input
+                       className='mb-3'
+                       id="username"
+                       name="username"
+                       type="text"
+                       value={username}
+                       onChange={this.change}
+                       placeholder="Email" />
+                   <input
+                       id="password"
+                       name="password"
+                       type="password"
+                       value={password}
+                       onChange={this.change}
+                       placeholder="Password" />
+               </div>
               </React.Fragment>
             )} />
           <p>

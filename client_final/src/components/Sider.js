@@ -1,13 +1,13 @@
 import React from 'react';
 
-import {Divider, Layout, Menu} from 'antd';
+import {Layout, Menu} from 'antd';
 import {NavLink} from "react-router-dom";
 
 const {Header, Content, Footer, Sider} = Layout;
 
 
 const {SubMenu} = Menu;
-const sliderStyle ={backgroundColor:"#3e474f"};
+const sliderStyle = {backgroundColor: "#3e474f"};
 export default class MySider extends React.Component {
     // submenu keys of first level
     rootSubmenuKeys = ['sub1', 'sub2', 'sub4'];

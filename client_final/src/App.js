@@ -1,13 +1,8 @@
 import React from 'react';
-import {
-    BrowserRouter as Router,
-    Route,
-    Switch
-} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import Menu from "./Account/Menu";
 
 import Header from './components/Header';
-import Public from './components/Public';
 import NotFound from './components/NotFound';
 import UserSignUp from './components/UserSignUp';
 import UserSignIn from './components/UserSignIn';
@@ -32,11 +27,13 @@ import CreateComplain from "./Complains/CreateComplain";
 import CreateDivision from "./components/CreateDivision";
 import CreateSubDivision from "./components/CreateSubDivision";
 import Sider from "./components/Sider";
+import SiderDemo from "./components/SiderDemo";
 import ComplainDashboard from "./Complains/ComplainDashboard";
 import ComplaintDetails from "./Complains/ComplaintDetails";
 
 const HeaderWithContext = withContext(Header);
 const SiderWithContext = withContext(Sider);
+const SiderDemoWithContext = withContext(SiderDemo);
 const HomeWithContext = withContext(Home);
 const TESTHOMEWithContext = withContext(TESTHOME);
 const AuthWithContext = withContext(Authenticated);
@@ -50,8 +47,7 @@ const ComplaintDetailsWithContext = withContext(ComplaintDetails);
 export default () => (
     <Router>
         <div>
-            <HeaderWithContext/>
-            <SiderWithContext>
+            <SiderDemoWithContext>
                 <Switch>
 
                     <Route exact path="/" component={HomeWithContext}/>
@@ -85,7 +81,7 @@ export default () => (
 
                     <Route component={NotFound}/>
                 </Switch>
-            </SiderWithContext>
+            </SiderDemoWithContext>
         </div>
     </Router>
 );

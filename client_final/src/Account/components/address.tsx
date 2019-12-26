@@ -118,7 +118,7 @@ class zxzBaseView extends Component<MyProps, MyState> {
 
                     </FormItem>
 
-                    <FormItem label="permanent_address">{
+                    <FormItem label="MESSAGEpermanent_address">{
                         getFieldDecorator('permanent_address', {
                             rules: [{required: true, message: "Please Provide Your Name"}]
                         })(<Input/>)}
